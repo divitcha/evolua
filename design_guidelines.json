@@ -1,0 +1,185 @@
+{
+  "app_name": "ApexTrainer OS",
+  "personality": "7 Dark-First Utility DARK",
+  "personality_one_liner": "A high-performance operational command center for independent personal trainers to manage student rosters, body composition diagnostics, and workout prescriptions with zero friction.",
+  "color": {
+    "surface": "#121417",
+    "onSurface": "#F4F5F7",
+    "surfaceSecondary": "#1A1D23",
+    "onSurfaceSecondary": "#9CA3AF",
+    "surfaceTertiary": "#232730",
+    "onSurfaceTertiary": "#D1D5DB",
+    "surfaceInverse": "#FFFFFF",
+    "onSurfaceInverse": "#121417",
+    "brand": "#FF5722",
+    "brandPrimary": "#FF5722",
+    "onBrandPrimary": "#FFFFFF",
+    "brandSecondary": "#FF7043",
+    "onBrandSecondary": "#FFFFFF",
+    "brandTertiary": "rgba(255, 87, 34, 0.15)",
+    "onBrandTertiary": "#FF5722",
+    "success": "#10B981",
+    "onSuccess": "#FFFFFF",
+    "warning": "#F59E0B",
+    "onWarning": "#FFFFFF",
+    "error": "#EF4444",
+    "onError": "#FFFFFF",
+    "info": "#3B82F6",
+    "onInfo": "#FFFFFF",
+    "border": "#2A2F3A",
+    "borderStrong": "#FF5722",
+    "divider": "#1F242D",
+    "muted": "#6B7280",
+    "onBrand": "#FFFFFF"
+  },
+  "typography": {
+    "displayFontFamily": "BarlowCondensed_700Bold",
+    "textFontFamily": "Satoshi_400Regular",
+    "scale": {
+      "sm": 12,
+      "base": 14,
+      "lg": 16,
+      "xl": 20,
+      "2xl": 24
+    }
+  },
+  "spacing": {
+    "rule": "Maintain disciplined 8pt grid with compact high-density metrics and generous touch targets (≥44pt).",
+    "xs": 4,
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 24,
+    "2xl": 32,
+    "3xl": 48
+  },
+  "radius_tokens": {
+    "sm": 6,
+    "md": 12,
+    "lg": 20,
+    "pill": 999
+  },
+  "shadow_tier": "0",
+  "navigation": "bottom_tabs",
+  "icon_set": "MaterialCommunityIcons",
+  "glassmorphism": {
+    "enabled": false,
+    "do's": [
+      "Use crisp borders and tonal contrast for high-speed glanceability during live training."
+    ],
+    "dont's": [
+      "Avoid heavy blurs that reduce clarity on quick data scans."
+    ]
+  },
+  "platform_libraries": {
+    "glass": {
+      "ios": "expo-blur",
+      "android": "expo-blur",
+      "low_end_android_fallback": "solid surfaceSecondary"
+    },
+    "image": "expo-image",
+    "blur": "expo-blur",
+    "bottom_sheet": "@gorhom/bottom-sheet",
+    "animation": "react-native-reanimated",
+    "gesture": "react-native-gesture-handler"
+  },
+  "screens": [
+    {
+      "name": "Dashboard & Alerts",
+      "purpose": "Command center for the personal trainer displaying critical alerts, active student roster, quick stats, and AI assistant suggestions.",
+      "states": {
+        "loading": "Displaying skeleton rows for active roster and alert priority badges.",
+        "empty": "No active student alerts or pending tasks. All rosters synced.",
+        "error": "Failed to sync roster data. Tap retry to reconnect."
+      },
+      "layout": "Sticky header with trainer quick status, alert banner carousel for payment/plan/inactivity, search bar, active students horizontal quick scroll, and priority student list with status tags."
+    },
+    {
+      "name": "Student Profile & History",
+      "purpose": "Comprehensive view of student details, anamnesis summary, chronic chronological workout history, and quick action triggers.",
+      "states": {
+        "loading": "Loading student telemetry and past session logs...",
+        "empty": "No history recorded yet for this student.",
+        "error": "Could not load student record. Please check connection."
+      },
+      "layout": "Header with avatar and quick contact buttons, segmented tab bar (Overview, Training, Physical Assessment, Anamnesis), and chronological timeline feed."
+    },
+    {
+      "name": "Physical Assessment (Pollock & Body Composition)",
+      "purpose": "Advanced assessment module featuring Pollock 3 & 7 folds protocols, circumferences, fat mass, lean mass, and BMI telemetry.",
+      "states": {
+        "loading": "Calculating body composition metrics...",
+        "empty": "No physical assessments recorded. Tap 'Nova Avaliação' to start.",
+        "error": "Calculation error in skinfold algorithms. Re-enter measurements."
+      },
+      "layout": "Protocol selector toggle (Pollock 3 / 7), interactive input grid for skinfold/circumference numbers, live summary calculation card showing fat mass percentage, lean mass, and BMI status badge."
+    },
+    {
+      "name": "Minha Evolução (Comparison & Charts)",
+      "purpose": "Comparative analytics view graphing body composition shifts over time with visual progress indicators.",
+      "states": {
+        "loading": "Rendering telemetry comparison charts...",
+        "empty": "At least two assessments are required to generate comparison trends.",
+        "error": "Unable to render historical charts."
+      },
+      "layout": "Date range picker, key metric cards with delta percentage indicators (Weight, Fat %, Muscle Mass), and interactive timeline evolution graph."
+    },
+    {
+      "name": "Antes e Depois (Side-by-Side Photo Comparison)",
+      "purpose": "Visual comparison tool showing frontal, lateral, and posterior photos side-by-side with date stamps and alignment grid.",
+      "states": {
+        "loading": "Loading high-resolution progress images...",
+        "empty": "No progress photos uploaded yet for this student.",
+        "error": "Failed to load comparison images."
+      },
+      "layout": "Dual-frame comparison viewer with date selectors (Before vs After), angle switcher pills (Frontal, Lateral, Posterior), and slider overlay."
+    },
+    {
+      "name": "Workout Builder & Tracker",
+      "purpose": "Detailed workout programming interface with exercise sets, reps, load, rest times, and tempo control.",
+      "states": {
+        "loading": "Loading workout templates and exercise library...",
+        "empty": "No exercises added to this workout routine yet.",
+        "error": "Failed to fetch workout plan."
+      },
+      "layout": "Routine header with target muscle group and duration, expandable exercise list cards with set tables (Weight x Reps x Rest), and sticky bottom action bar."
+    },
+    {
+      "name": "Frequency & Calendar",
+      "purpose": "Attendance tracking and training calendar showing session completion history and schedule.",
+      "states": {
+        "loading": "Syncing attendance logs...",
+        "empty": "No attendance records found for this month.",
+        "error": "Failed to load calendar events."
+      },
+      "layout": "Monthly calendar grid with presence status indicators (green completed, red missed, amber scheduled) and daily session log below."
+    },
+    {
+      "name": "AI Assistant & Chat",
+      "purpose": "Direct messaging with students and AI assistant powered hub for instant workout adjustments and movement analysis.",
+      "states": {
+        "loading": "Connecting to AI coach and secure chat...",
+        "empty": "Start a conversation or ask the AI assistant for a workout variation.",
+        "error": "Chat connection lost. Retrying..."
+      },
+      "layout": "Segmented switcher (AI Support vs Student Chat), message stream with markdown code blocks and quick action prompt chips, and sticky message input box."
+    }
+  ],
+  "images": {
+    "trainer_hero": {
+      "url": "https://images.unsplash.com/photo-1701481080490-cb2e7f4fd5f8?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NjZ8MHwxfHNlYXJjaHwzfHxmaXRuZXNzJTIwcGVyc29uYWwlMjB0cmFpbmVyJTIwd29ya291dCUyMGd5bSUyMHByb2ZpbGV8ZW58MHx8fHwxNzg4ODc1OTA0fDA&ixlib=rb-4.1.0&q=85",
+      "alt": "Personal trainer command center background"
+    },
+    "student_sample": {
+      "url": "https://images.unsplash.com/photo-1637651684506-07e16fcf7b06?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NjZ8MHwxfHNlYXJjaHwxfHxmaXRuZXNzJTIwcGVyc29uYWwlMjB0cmFpbmVyJTIwd29ya291dCUyMGd5bSUyMHByb2ZpbGV8ZW58MHx8fHwxNzg4ODc1OTA0fDA&ixlib=rb-4.1.0&q=85",
+      "alt": "Student workout profile picture"
+    }
+  },
+  "instructions_to_main_agent": [
+    "Build ApexTrainer OS using Dark-First Utility theme with a warm signal orange accent (#FF5722) for high-performance workout and roster management.",
+    "Ensure all 8 core screens are fully interactive and wired up with realistic mock data for Brazilian personal trainers (Portuguese UI text as requested in problem statement).",
+    "Implement Pollock 3 and 7 folds skinfold calculation formulas, circumference logs, and BMI/fat mass calculations.",
+    "Include Antes e Depois photo comparison side-by-side view, Anamnese form, Workout programming with sets/reps/load, Frequency calendar, Direct Chat, and AI Assistant support.",
+    "Adhere strictly to touch targets >= 44pt, safe area handling at screen roots, and no purple/indigo/navy banned colors."
+  ]
+}
