@@ -100,76 +100,86 @@ async def get_current_trainer(authorization: Optional[str] = Header(default=None
     return trainer
 
 # ==========================================
-# OBJECT STORAGE (Emergent managed)
+# OBJECT STORAGE (AWS S3 via Boto3)
 # ==========================================
-STORAGE_BASE = (os.environ.get("INTEGRATION_PROXY_URL") or "").strip() or "https://integrations.emergentagent.com"
-STORAGE_URL = STORAGE_BASE.rstrip("/") + "/objstore/api/v1/storage"
-EMERGENT_KEY = os.environ.get("EMERGENT_LLM_KEY")
-APP_NAME = "apextrainer-os"
-_storage_key: Optional[str] = None
+import boto3
+from botocore.exceptions import ClientError
+from botocore.config import Config
 
-def init_storage() -> Optional[str]:
-    global _storage_key
-    if _storage_key:
-        return _storage_key
-    resp = requests.post(f"{STORAGE_URL}/init", json={"emergent_key": EMERGENT_KEY}, timeout=30)
-    resp.raise_for_status()
-    _storage_key = resp.json()["storage_key"]
-    return _storage_key
+AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
+AWS_BUCKET_NAME = os.environ.get("AWS_BUCKET_NAME")
+AWS_REGION = os.environ.get("AWS_REGION", "us-east-1")
+
+s3_client = None
+if AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY and AWS_BUCKET_NAME:
+    s3_client = boto3.client(
+        "s3",
+        aws_access_key_id=AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+        region_name=AWS_REGION,
+        config=Config(signature_version='s3v4')
+    )
 
 def put_object(path: str, data: bytes, content_type: str) -> dict:
-    global _storage_key
-    key = init_storage()
-    resp = requests.put(
-        f"{STORAGE_URL}/objects/{path}",
-        headers={"X-Storage-Key": key, "Content-Type": content_type},
-        data=data,
-        timeout=120,
-    )
-    if resp.status_code == 503:
-        _storage_key = None
-        key = init_storage()
-        resp = requests.put(
-            f"{STORAGE_URL}/objects/{path}",
-            headers={"X-Storage-Key": key, "Content-Type": content_type},
-            data=data,
-            timeout=120,
+    if not s3_client:
+        raise HTTPException(status_code=500, detail="S3 não configurado")
+    try:
+        s3_client.put_object(
+            Bucket=AWS_BUCKET_NAME,
+            Key=path,
+            Body=data,
+            ContentType=content_type
         )
-    resp.raise_for_status()
-    return resp.json()
+        url = f"https://{AWS_BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/{path}"
+        return {"url": url, "path": path}
+    except ClientError as e:
+        logger.error(f"Erro no S3 upload: {e}")
+        raise HTTPException(status_code=500, detail="Erro ao enviar arquivo para o S3")
 
 def get_object(path: str) -> tuple:
-    global _storage_key
-    key = init_storage()
-    resp = requests.get(f"{STORAGE_URL}/objects/{path}", headers={"X-Storage-Key": key}, timeout=60)
-    if resp.status_code == 503:
-        _storage_key = None
-        key = init_storage()
-        resp = requests.get(f"{STORAGE_URL}/objects/{path}", headers={"X-Storage-Key": key}, timeout=60)
-    resp.raise_for_status()
-    return resp.content, resp.headers.get("Content-Type", "application/octet-stream")
+    if not s3_client:
+        raise HTTPException(status_code=500, detail="S3 não configurado")
+    try:
+        response = s3_client.get_object(Bucket=AWS_BUCKET_NAME, Key=path)
+        return response["Body"].read(), response.get("ContentType", "application/octet-stream")
+    except ClientError as e:
+        logger.error(f"Erro no S3 download: {e}")
+        raise HTTPException(status_code=404, detail="Arquivo não encontrado no S3")
 
 # ==========================================
-# PUSH NOTIFICATIONS (Emergent managed relay)
+# PUSH NOTIFICATIONS (Expo Push)
 # ==========================================
-PUSH_BASE_URL = "https://integrations.emergentagent.com"
-PUSH_KEY = os.environ.get("EMERGENT_PUSH_KEY", "placeholder")
-_push_client = httpx.AsyncClient(base_url=PUSH_BASE_URL, headers={"X-Push-Key": PUSH_KEY}, timeout=10.0)
-
 async def send_push(recipients: List[str], data: dict, idempotency_key: Optional[str] = None) -> None:
     if not recipients:
         return
     if "title" not in data or "message" not in data:
         raise ValueError("data must include title and message")
-    payload: dict = {"recipients": recipients[:100], "data": data}
-    if idempotency_key:
-        payload["$idempotency_key"] = idempotency_key
-    resp = await _push_client.post("/api/v1/push/trigger", json=payload)
-    if resp.status_code == 401:
-        raise HTTPException(500, "EMERGENT_PUSH_KEY missing or invalid")
-    if resp.status_code >= 500:
-        raise HTTPException(502, "Push provider unavailable")
-    resp.raise_for_status()
+    
+    EXPO_PUSH_URL = "https://exp.host/--/api/v2/push/send"
+    messages = []
+    
+    for token in recipients:
+        if not token.startswith("ExponentPushToken[") and not token.startswith("ExpoPushToken["):
+            continue
+            
+        messages.append({
+            "to": token,
+            "sound": "default",
+            "title": data["title"],
+            "body": data["message"],
+            "data": data.get("extra", {})
+        })
+        
+    if not messages:
+        return
+        
+    async with httpx.AsyncClient() as client:
+        try:
+            resp = await client.post(EXPO_PUSH_URL, json=messages)
+            resp.raise_for_status()
+        except Exception as e:
+            logger.error(f"Erro ao enviar notificação push via Expo: {e}")
 
 # ==========================================
 # MODELS
@@ -1815,10 +1825,12 @@ class AIRequest(BaseModel):
 
 @api_router.post("/ai/assistant")
 async def ai_coach_assistant(req: AIRequest):
-    """Uses emergentintegrations LlmChat with OpenAI gpt-5.4-mini to provide coaching insights and workout suggestions."""
-    emergent_key = os.environ.get("EMERGENT_LLM_KEY")
-    if not emergent_key:
-        raise HTTPException(status_code=500, detail="EMERGENT_LLM_KEY não configurada")
+    """Uses OpenAI gpt-4o-mini to provide coaching insights and workout suggestions."""
+    import openai
+    
+    openai_key = os.environ.get("OPENAI_API_KEY")
+    if not openai_key:
+        raise HTTPException(status_code=500, detail="OPENAI_API_KEY não configurada")
 
     system_prompt = (
         "Você é o ApexTrainer AI, um assistente de elite especializado em Educação Física, Fisiologia do Exercício, "
@@ -1833,22 +1845,21 @@ async def ai_coach_assistant(req: AIRequest):
         context_str = f"\n[Contexto do Aluno/Personal]:\n{req.context}\n"
 
     try:
-        from emergentintegrations.llm.chat import LlmChat, UserMessage
-
         session_id = f"apextrainer_{uuid.uuid4().hex[:8]}"
-        chat = LlmChat(
-            api_key=emergent_key,
-            session_id=session_id,
-            system_message=system_prompt
-        ).with_model("openai", "gpt-5.4-mini")
-
-        user_msg = UserMessage(text=f"{context_str}\nPergunta/Instrução do Personal:\n{req.prompt}")
-        response_text = await chat.send_message(user_msg)
+        
+        client = openai.AsyncOpenAI(api_key=openai_key)
+        response = await client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": f"{context_str}\nPergunta/Instrução do Personal:\n{req.prompt}"}
+            ]
+        )
+        response_text = response.choices[0].message.content
 
         return {"reply": response_text, "session_id": session_id}
     except Exception as e:
         logger.error(f"Erro ao chamar AI Assistant: {str(e)}")
-        # Fallback helpful response if connection is temporarily unavailable
         fallback_reply = (
             f"💡 **Recomendação ApexTrainer:**\n\n"
             f"Com base na solicitação: *'{req.prompt}'*,\n"
