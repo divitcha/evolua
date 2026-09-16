@@ -99,6 +99,23 @@ async def get_current_trainer(authorization: Optional[str] = Header(default=None
         raise unauthorized
     return trainer
 
+async def get_current_student(authorization: Optional[str] = Header(default=None)) -> dict:
+    unauthorized = HTTPException(status_code=401, detail="Sessão inválida ou expirada")
+    if not authorization or not authorization.lower().startswith("bearer "):
+        raise unauthorized
+    token = authorization.split(" ", 1)[1].strip()
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        student_id = payload.get("sub")
+        if payload.get("type") != "access" or not student_id:
+            raise unauthorized
+    except jwt.PyJWTError:
+        raise unauthorized
+    student = await db.students.find_one({"_id": student_id, "deleted_at": None})
+    if not student:
+        raise unauthorized
+    return student
+
 # ==========================================
 # OBJECT STORAGE (AWS S3 via Boto3)
 # ==========================================
@@ -1144,6 +1161,8 @@ async def create_student(data: Dict[str, Any]):
     data["_id"] = new_id
     data["created_at"] = datetime.now(timezone.utc).isoformat()
     data["updated_at"] = datetime.now(timezone.utc).isoformat()
+    if "password" in data:
+        data["password_hash"] = hash_password(data.pop("password"))
     if "status" not in data:
         data["status"] = "ativo"
 
@@ -1180,6 +1199,8 @@ async def create_student(data: Dict[str, Any]):
 async def update_student(student_id: str, data: Dict[str, Any]):
     data.pop("_id", None)
     data.pop("id", None)
+    if "password" in data:
+        data["password_hash"] = hash_password(data.pop("password"))
     data["updated_at"] = datetime.now(timezone.utc).isoformat()
 
     # If weight changed, log to history
@@ -1911,9 +1932,28 @@ async def login_trainer(body: LoginBody):
         raise HTTPException(401, "E-mail ou senha incorretos")
     return {"access_token": issue_token(trainer["_id"]), "token_type": "bearer", "trainer": _trainer_public(trainer)}
 
+@public_router.post("/auth/student/login")
+async def login_student(body: LoginBody):
+    email = body.email.lower()
+    student = await db.students.find_one({"email": email, "deleted_at": None})
+    if not student or not verify_password(body.password, student.get("password_hash", "")):
+        raise HTTPException(401, "E-mail ou senha incorretos")
+    
+    # Remove sensitive info before returning
+    student_clean = {k: v for k, v in student.items() if k not in ["password_hash"]}
+    student_clean["id"] = student_clean.pop("_id")
+    
+    return {"access_token": issue_token(student["_id"]), "token_type": "bearer", "student": student_clean}
+
 @api_router.get("/auth/me")
 async def get_me(trainer: dict = Depends(get_current_trainer)):
     return _trainer_public(trainer)
+
+@student_router.get("/student/me")
+async def get_student_me(student: dict = Depends(get_current_student)):
+    student_clean = {k: v for k, v in student.items() if k not in ["password_hash"]}
+    student_clean["id"] = student_clean.pop("_id")
+    return student_clean
 
 # ==========================================
 # ROUTES: FILE UPLOAD / DOWNLOAD (Object Storage)
@@ -1994,9 +2034,131 @@ async def notify_alerts(trainer: dict = Depends(get_current_trainer)):
         return {"sent": False, "message": message}
     return {"sent": True, "message": message}
 
+# ==========================================
+# ROUTES: STUDENT DASHBOARD & TRACKING
+# ==========================================
+
+@student_router.get("/student/dashboard")
+async def get_student_dashboard(student: dict = Depends(get_current_student)):
+    student_id = str(student["_id"])
+    today_str = datetime.now().strftime("%Y-%m-%d")
+
+    # Fetch today's hydration
+    water_docs = await db.hydration.find({"student_id": student_id, "date": today_str}).to_list(None)
+    total_water = sum(doc.get("amount_ml", 0) for doc in water_docs)
+    water_goal = student.get("water_goal_ml", 3000)
+
+    # Fetch today's nutrition
+    food_docs = await db.nutrition.find({"student_id": student_id, "date": today_str}).to_list(None)
+    calories = sum(doc.get("calories", 0) for doc in food_docs)
+    protein = sum(doc.get("protein_g", 0) for doc in food_docs)
+    carbs = sum(doc.get("carbs_g", 0) for doc in food_docs)
+    fat = sum(doc.get("fat_g", 0) for doc in food_docs)
+
+    # Fetch latest physical assessment to show current weight & fat
+    latest_assessment = await db.assessments.find_one(
+        {"student_id": student_id, "deleted_at": None},
+        sort=[("date", -1)]
+    )
+
+    # Fetch next/current workout
+    workout = await db.workouts.find_one({"student_id": student_id, "deleted_at": None}, sort=[("created_at", -1)])
+    if workout:
+        workout["id"] = workout.pop("_id")
+
+    return {
+        "hydration": {
+            "consumed_ml": total_water,
+            "goal_ml": water_goal,
+            "remaining_ml": max(0, water_goal - total_water)
+        },
+        "nutrition": {
+            "calories": calories,
+            "protein_g": protein,
+            "carbs_g": carbs,
+            "fat_g": fat,
+            "calories_goal": student.get("calories_goal", 2000),
+            "protein_goal": student.get("protein_goal", 150),
+        },
+        "metrics": {
+            "weight_kg": latest_assessment.get("weight_kg") if latest_assessment else student.get("weight_kg", 0),
+            "body_fat_pct": latest_assessment.get("body_fat_pct") if latest_assessment else 0,
+        },
+        "workout": workout
+    }
+
+@student_router.post("/student/water")
+async def log_water(body: Dict[str, Any], student: dict = Depends(get_current_student)):
+    amount = int(body.get("amount_ml", 0))
+    doc = {
+        "_id": f"water_{uuid.uuid4().hex[:8]}",
+        "student_id": str(student["_id"]),
+        "date": datetime.now().strftime("%Y-%m-%d"),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "amount_ml": amount
+    }
+    await db.hydration.insert_one(doc)
+    doc["id"] = doc.pop("_id")
+    return doc
+
+@student_router.get("/student/meals")
+async def get_meals(student: dict = Depends(get_current_student), date: str = None):
+    date_query = date or datetime.now().strftime("%Y-%m-%d")
+    docs = await db.nutrition.find({"student_id": str(student["_id"]), "date": date_query}).to_list(100)
+    for d in docs: d["id"] = d.pop("_id")
+    return docs
+
+@student_router.post("/student/meals")
+async def log_meal(body: Dict[str, Any], student: dict = Depends(get_current_student)):
+    doc = {
+        "_id": f"meal_{uuid.uuid4().hex[:8]}",
+        "student_id": str(student["_id"]),
+        "date": datetime.now().strftime("%Y-%m-%d"),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "meal_type": body.get("meal_type", "Lanche"),
+        "food_name": body.get("food_name", ""),
+        "calories": float(body.get("calories", 0)),
+        "protein_g": float(body.get("protein_g", 0)),
+        "carbs_g": float(body.get("carbs_g", 0)),
+        "fat_g": float(body.get("fat_g", 0))
+    }
+    await db.nutrition.insert_one(doc)
+    doc["id"] = doc.pop("_id")
+    return doc
+
+@student_router.get("/student/runs")
+async def get_runs(student: dict = Depends(get_current_student)):
+    docs = await db.runs.find({"student_id": str(student["_id"])}).sort("date", -1).to_list(100)
+    for d in docs: d["id"] = d.pop("_id")
+    return docs
+
+@student_router.post("/student/runs")
+async def log_run(body: Dict[str, Any], student: dict = Depends(get_current_student)):
+    doc = {
+        "_id": f"run_{uuid.uuid4().hex[:8]}",
+        "student_id": str(student["_id"]),
+        "date": datetime.now().strftime("%Y-%m-%d"),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "distance_km": float(body.get("distance_km", 0)),
+        "duration_min": float(body.get("duration_min", 0)),
+        "calories_kcal": float(body.get("calories_kcal", 0)),
+    }
+    # Calculate pace
+    if doc["distance_km"] > 0:
+        doc["pace_min_km"] = doc["duration_min"] / doc["distance_km"]
+    else:
+        doc["pace_min_km"] = 0
+        
+    await db.runs.insert_one(doc)
+    doc["id"] = doc.pop("_id")
+    return doc
+
+student_router = APIRouter(prefix="/api")
+
 # Include routers
 app.include_router(public_router)
 app.include_router(api_router, dependencies=[Depends(get_current_trainer)])
+app.include_router(student_router, dependencies=[Depends(get_current_student)])
 
 app.add_middleware(
     CORSMiddleware,
