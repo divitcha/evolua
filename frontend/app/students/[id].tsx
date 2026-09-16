@@ -30,6 +30,7 @@ import {
   Phone,
   Edit3,
   Plus,
+  Trash,
 } from "lucide-react-native";
 
 import { useTheme, makeStyles } from "@/src/theme";
@@ -173,13 +174,37 @@ export default function StudentDetailScreen() {
         showBack
         testID="student-detail-header"
         rightElement={
-          <Pressable
-            testID="header-whatsapp-btn"
-            onPress={openWhatsApp}
-            style={[styles.headerIconBtn, { backgroundColor: "rgba(16, 185, 129, 0.15)", borderColor: colors.success }]}
-          >
-            <Phone size={16} color={colors.success} />
-          </Pressable>
+          <View style={{ flexDirection: "row", gap: 12 }}>
+            <Pressable
+              onPress={() => {
+                Alert.alert(
+                  "Excluir Aluno",
+                  "Tem certeza que deseja excluir este aluno? Esta ação não pode ser desfeita.",
+                  [
+                    { text: "Cancelar", style: "cancel" },
+                    { text: "Excluir", style: "destructive", onPress: async () => {
+                        try {
+                          await api.deleteStudent(student.id);
+                          queryClient.invalidateQueries({ queryKey: ["students-list"] });
+                          queryClient.invalidateQueries({ queryKey: ["dashboard-summary"] });
+                          router.replace("/(tabs)");
+                        } catch(e) { console.error(e); }
+                    }}
+                  ]
+                );
+              }}
+              style={[styles.headerIconBtn, { backgroundColor: "rgba(239, 68, 68, 0.15)", borderColor: colors.error }]}
+            >
+              <Trash size={20} color={colors.error} />
+            </Pressable>
+            <Pressable
+              testID="header-whatsapp-btn"
+              onPress={openWhatsApp}
+              style={[styles.headerIconBtn, { backgroundColor: "rgba(16, 185, 129, 0.15)", borderColor: colors.success }]}
+            >
+              <Phone size={20} color={colors.success} />
+            </Pressable>
+          </View>
         }
       />
 

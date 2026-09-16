@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, ScrollView, ActivityIndicator, Pressable, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Droplet, Flame, ArrowRight, User, Dumbbell } from "lucide-react-native";
+import { Droplet, Flame, ArrowRight, User, Dumbbell, LogOut } from "lucide-react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 
@@ -13,7 +13,7 @@ export default function StudentDashboardScreen() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { user, role } = useAuth();
+  const { user, role, signOut } = useAuth();
   
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -66,10 +66,17 @@ export default function StudentDashboardScreen() {
           borderBottomRightRadius: 30,
         }}
       >
-        <Text style={{ color: "#FFF", fontSize: 16, opacity: 0.9 }}>Bem-vindo de volta,</Text>
-        <Text style={{ color: "#FFF", fontSize: 28, fontWeight: "bold", marginTop: 4 }}>
-          {user?.name?.split(" ")[0]}!
-        </Text>
+        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" }}>
+          <View>
+            <Text style={{ color: "#FFF", fontSize: 16, opacity: 0.9 }}>Bem-vindo de volta,</Text>
+            <Text style={{ color: "#FFF", fontSize: 28, fontWeight: "bold", marginTop: 4 }}>
+              {user?.name?.split(" ")[0]}!
+            </Text>
+          </View>
+          <Pressable onPress={() => signOut()} style={{ padding: 8, backgroundColor: "rgba(255,255,255,0.2)", borderRadius: 12 }}>
+            <LogOut size={20} color="#FFF" />
+          </Pressable>
+        </View>
       </LinearGradient>
 
       <View style={{ paddingHorizontal: 24, marginTop: -20, gap: 16 }}>
