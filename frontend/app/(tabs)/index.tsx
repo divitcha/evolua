@@ -104,7 +104,7 @@ export default function DashboardScreen() {
   return (
     <View testID="dashboard-screen" style={[styles.container, { backgroundColor: colors.surface }]}>
       <Header
-        title="ApexTrainer OS"
+        title="Treinaí"
         subtitle="Painel do Personal Trainer Autônomo"
         testID="dashboard-header"
         rightElement={

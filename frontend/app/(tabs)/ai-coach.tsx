@@ -138,7 +138,7 @@ export default function AICoachScreen() {
                   </View>
                 )}
                 <Text style={[styles.senderName, { color: colors.muted }]}>
-                  {isAI ? "ApexTrainer AI" : "Você"} • {msg.timestamp}
+                  {isAI ? "Treinaí AI" : "Você"} • {msg.timestamp}
                 </Text>
               </View>
 
@@ -170,7 +170,7 @@ export default function AICoachScreen() {
           <View style={styles.loadingBubble}>
             <ActivityIndicator size="small" color={colors.brandPrimary} />
             <Text style={[styles.loadingText, { color: colors.onSurfaceSecondary }]}>
-              ApexTrainer AI formulando resposta técnica...
+              Treinaí AI formulando resposta técnica...
             </Text>
           </View>
         )}
