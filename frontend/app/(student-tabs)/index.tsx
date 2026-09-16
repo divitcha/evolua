@@ -106,12 +106,16 @@ export default function StudentDashboardScreen() {
             </View>
             <Pressable
               onPress={handleAddWater}
-              style={{ backgroundColor: colors.brandTertiary, padding: 12, borderRadius: 12 }}
+              style={{ backgroundColor: colors.brandTertiary, paddingHorizontal: 16, paddingVertical: 12, borderRadius: 12, flexDirection: "row", alignItems: "center", gap: 8 }}
             >
-              <Droplet size={24} color={colors.brandPrimary} />
+              <Droplet size={20} color={colors.brandPrimary} />
+              <Text style={{ color: colors.brandPrimary, fontWeight: "bold", fontSize: 14 }}>+250ml</Text>
             </Pressable>
           </View>
-          <View style={{ height: 8, backgroundColor: colors.surfaceTertiary, borderRadius: 4, marginTop: 16, overflow: "hidden" }}>
+          <Text style={{ color: colors.muted, fontSize: 12, marginTop: 8 }}>
+            Toque no botão acima cada vez que beber um copo d'água para registrar.
+          </Text>
+          <View style={{ height: 8, backgroundColor: colors.surfaceTertiary, borderRadius: 4, marginTop: 12, overflow: "hidden" }}>
             <View
               style={{
                 width: `${Math.min(100, ((hydration?.consumed_ml || 0) / (hydration?.goal_ml || 1)) * 100)}%`,
