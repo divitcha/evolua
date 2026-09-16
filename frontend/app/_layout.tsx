@@ -82,11 +82,19 @@ function RootNavigator() {
     const onLogin = segments[0] === "login";
     if (!token && !onLogin) {
       router.replace("/login");
-    } else if (token && onLogin) {
-      if (role === "student") {
-        router.replace("/(student-tabs)");
+    } else if (token) {
+      if (onLogin) {
+        if (role === "student") router.replace("/(student-tabs)");
+        else router.replace("/");
       } else {
-        router.replace("/");
+        const inStudentTab = segments[0] === "(student-tabs)";
+        const inPersonalTab = segments[0] === "(tabs)" || segments[0] === "students";
+        
+        if (role === "student" && inPersonalTab) {
+          router.replace("/(student-tabs)");
+        } else if (role === "trainer" && inStudentTab) {
+          router.replace("/");
+        }
       }
     }
   }, [token, role, loading, segments]);
