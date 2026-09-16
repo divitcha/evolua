@@ -44,6 +44,7 @@ export default function NewStudentScreen() {
   const [gender, setGender] = useState<"Masculino" | "Feminino">("Masculino");
   const [phone, setPhone] = useState("(11) 98765-4321");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [heightCm, setHeightCm] = useState("175");
   const [weightKg, setWeightKg] = useState("78");
   const [goal, setGoal] = useState<StudentGoal>("Hipertrofia");
@@ -66,6 +67,7 @@ export default function NewStudentScreen() {
         gender: gender,
         phone: phone,
         email: email || `${name.toLowerCase().replace(/\s+/g, ".")}@email.com`,
+        password: password || "123456",
         height_cm: parseFloat(heightCm) || 175,
         weight_kg: parseFloat(weightKg) || 75,
         goal: goal,
@@ -178,6 +180,21 @@ export default function NewStudentScreen() {
               onChangeText={setEmail}
               placeholder="aluno@email.com"
               placeholderTextColor={colors.muted}
+              style={[styles.input, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border, color: colors.onSurface }]}
+            />
+          </View>
+        </View>
+
+        <View style={styles.row}>
+          <View style={[styles.formGroup, { flex: 1 }]}>
+            <Text style={[styles.label, { color: colors.onSurface }]}>Senha de Acesso (App do Aluno)</Text>
+            <TextInput
+              testID="input-student-password"
+              value={password}
+              onChangeText={setPassword}
+              placeholder="Senha de login do aluno (Padrão: 123456)"
+              placeholderTextColor={colors.muted}
+              secureTextEntry
               style={[styles.input, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border, color: colors.onSurface }]}
             />
           </View>
