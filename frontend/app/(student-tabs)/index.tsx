@@ -13,7 +13,7 @@ export default function StudentDashboardScreen() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, role } = useAuth();
   
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -30,8 +30,10 @@ export default function StudentDashboardScreen() {
   };
 
   useEffect(() => {
-    fetchDashboard();
-  }, []);
+    if (role === "student") {
+      fetchDashboard();
+    }
+  }, [role]);
 
   const handleAddWater = async () => {
     try {

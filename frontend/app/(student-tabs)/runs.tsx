@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Activity, MapPin, Clock, Flame } from "lucide-react-native";
 
 import { useTheme } from "@/src/theme";
+import { useAuth } from "@/src/auth/AuthContext";
 import { api } from "@/src/api/client";
 
 export default function StudentRunsScreen() {
@@ -24,9 +25,13 @@ export default function StudentRunsScreen() {
     }
   };
 
+  const { role } = useAuth();
+
   useEffect(() => {
-    fetchRuns();
-  }, []);
+    if (role === "student") {
+      fetchRuns();
+    }
+  }, [role]);
 
   const handleAddMockRun = async () => {
     try {

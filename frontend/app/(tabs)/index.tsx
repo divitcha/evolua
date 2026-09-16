@@ -61,14 +61,18 @@ export default function DashboardScreen() {
     }
   };
 
+  const { role } = useAuth();
+
   const { data: dashboard, isLoading, refetch } = useQuery({
     queryKey: ["dashboard-summary"],
     queryFn: () => api.getDashboard(),
+    enabled: role === "trainer",
   });
 
   const { data: students = [] } = useQuery({
     queryKey: ["students-list"],
     queryFn: () => api.getStudents(),
+    enabled: role === "trainer",
   });
 
   const [refreshing, setRefreshing] = useState(false);

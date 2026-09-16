@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, ScrollView, ActivityIndicator, StyleSheet, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useAuth } from "@/src/auth/AuthContext";
 import { useTheme } from "@/src/theme";
 import { api } from "@/src/api/client";
 import { Coffee, Utensils, Moon } from "lucide-react-native";
@@ -23,9 +24,13 @@ export default function StudentNutritionScreen() {
     }
   };
 
+  const { role } = useAuth();
+
   useEffect(() => {
-    fetchMeals();
-  }, []);
+    if (role === "student") {
+      fetchMeals();
+    }
+  }, [role]);
 
   const handleAddMockMeal = async () => {
     try {

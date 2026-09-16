@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { TrendingDown, TrendingUp, Activity } from "lucide-react-native";
 
 import { useTheme } from "@/src/theme";
+import { useAuth } from "@/src/auth/AuthContext";
 import { api } from "@/src/api/client";
 
 export default function StudentEvolutionScreen() {
@@ -11,10 +12,13 @@ export default function StudentEvolutionScreen() {
   const insets = useSafeAreaInsets();
   
   const [data, setData] = useState<any>(null);
+  const { role } = useAuth();
 
   useEffect(() => {
-    api.getStudentDashboard().then(setData).catch(console.error);
-  }, []);
+    if (role === "student") {
+      api.getStudentDashboard().then(setData).catch(console.error);
+    }
+  }, [role]);
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.surface, paddingTop: insets.top }}>
