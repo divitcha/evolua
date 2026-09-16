@@ -73,7 +73,7 @@ async function registerForPush(userId: string) {
 }
 
 function RootNavigator() {
-  const { token, trainer, loading } = useAuth();
+  const { token, user, role, loading } = useAuth();
   const router = useRouter();
   const segments = useSegments();
 
@@ -83,15 +83,19 @@ function RootNavigator() {
     if (!token && !onLogin) {
       router.replace("/login");
     } else if (token && onLogin) {
-      router.replace("/");
+      if (role === "student") {
+        router.replace("/(student-tabs)");
+      } else {
+        router.replace("/");
+      }
     }
-  }, [token, loading, segments]);
+  }, [token, role, loading, segments]);
 
   // Register for push + tap handlers once authenticated
   useEffect(() => {
-    if (Platform.OS === "web" || !token || !trainer) return;
+    if (Platform.OS === "web" || !token || !user) return;
 
-    registerForPush(trainer.id);
+    registerForPush(user.id);
 
     const tapSub = Notifications.addNotificationResponseReceivedListener((response) => {
       const data = response.notification.request.content.data || {};
@@ -112,12 +116,13 @@ function RootNavigator() {
     return () => {
       tapSub.remove();
     };
-  }, [token, trainer]);
+  }, [token, user]);
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="login" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="(student-tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="students/[id]" options={{ headerShown: false }} />
       <Stack.Screen name="students/new" options={{ headerShown: false, presentation: "modal" }} />
       <Stack.Screen name="students/[id]/assessment/new" options={{ headerShown: false }} />

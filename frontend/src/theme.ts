@@ -82,7 +82,7 @@ const light = {
 
 export type ThemeColors = typeof dark;
 
-export const defaultScheme = "dark" satisfies ColorScheme;
+export const defaultScheme = "light" satisfies ColorScheme;
 
 export const themes: { light: ThemeColors; dark: ThemeColors } = { light, dark };
 

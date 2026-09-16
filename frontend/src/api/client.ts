@@ -67,6 +67,11 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ email, password }),
     }),
+  loginStudent: (email: string, password: string) =>
+    apiRequest<{ access_token: string; student: { id: string; name: string; email: string } }>("/auth/student/login", {
+      method: "POST",
+      body: JSON.stringify({ email, password }),
+    }),
   getMe: () => apiRequest<{ id: string; name: string; email: string }>("/auth/me"),
 
   // Image upload (Object Storage) — handles web vs native FormData

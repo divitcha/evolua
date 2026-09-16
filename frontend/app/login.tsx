@@ -22,6 +22,7 @@ export default function LoginScreen() {
   const { signIn, signUp } = useAuth();
 
   const [mode, setMode] = useState<"login" | "register">("login");
+  const [loginRole, setLoginRole] = useState<"trainer" | "student">("student");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -37,7 +38,7 @@ export default function LoginScreen() {
     setLoading(true);
     try {
       if (mode === "login") {
-        await signIn(email.trim().toLowerCase(), password);
+        await signIn(email.trim().toLowerCase(), password, loginRole);
       } else {
         await signUp(name.trim(), email.trim().toLowerCase(), password);
       }
@@ -71,9 +72,9 @@ export default function LoginScreen() {
           >
             <Dumbbell size={30} color="#FFFFFF" />
           </LinearGradient>
-          <Text style={[styles.brandTitle, { color: colors.onSurface }]}>ApexTrainer OS</Text>
+          <Text style={[styles.brandTitle, { color: colors.onSurface }]}>Treinaí</Text>
           <Text style={[styles.brandSubtitle, { color: colors.onSurfaceSecondary }]}>
-            Gestão profissional para Personal Trainers
+            O seu app de acompanhamento fitness
           </Text>
         </View>
 
@@ -84,9 +85,32 @@ export default function LoginScreen() {
           </Text>
           <Text style={[styles.cardCaption, { color: colors.onSurfaceSecondary }]}>
             {mode === "login"
-              ? "Acesse o painel do seu estúdio."
-              : "Comece a gerenciar seus alunos agora."}
+              ? "Escolha seu perfil e acesse sua conta."
+              : "Crie sua conta de treinador grátis."}
           </Text>
+
+          {mode === "login" && (
+            <View style={styles.roleToggle}>
+              <Pressable
+                onPress={() => setLoginRole("student")}
+                style={[
+                  styles.roleBtn,
+                  loginRole === "student" ? { backgroundColor: colors.brandPrimary } : { backgroundColor: colors.surfaceTertiary }
+                ]}
+              >
+                <Text style={[styles.roleText, loginRole === "student" ? { color: "#FFF" } : { color: colors.muted }]}>Sou Aluno</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => setLoginRole("trainer")}
+                style={[
+                  styles.roleBtn,
+                  loginRole === "trainer" ? { backgroundColor: colors.brandPrimary } : { backgroundColor: colors.surfaceTertiary }
+                ]}
+              >
+                <Text style={[styles.roleText, loginRole === "trainer" ? { color: "#FFF" } : { color: colors.muted }]}>Sou Personal</Text>
+              </Pressable>
+            </View>
+          )}
 
           {mode === "register" && (
             <View style={styles.field}>
@@ -229,6 +253,22 @@ const useStyles = makeStyles((colors) => ({
   submitText: { color: "#FFFFFF", fontSize: 15, fontWeight: "800" },
   toggleBtn: { alignItems: "center", marginTop: 16 },
   toggleText: { fontSize: 13 },
+  roleToggle: {
+    flexDirection: "row",
+    gap: 8,
+    marginBottom: 16,
+  },
+  roleBtn: {
+    flex: 1,
+    height: 44,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  roleText: {
+    fontWeight: "700",
+    fontSize: 13,
+  },
   demoHint: {
     marginTop: 20,
     borderWidth: 1,
