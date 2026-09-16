@@ -28,6 +28,17 @@ export interface Student {
   days_without_workout?: number;
   created_at: string;
   updated_at: string;
+  diet_plan?: DietMeal[];
+}
+
+export interface DietMeal {
+  id: string;
+  time: string;
+  name: string;
+  description: string;
+  calories: number;
+  proteins?: number;
+  carbs?: number;
 }
 
 export interface Circumferences {

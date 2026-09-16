@@ -4,19 +4,24 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "@/src/auth/AuthContext";
 import { useTheme } from "@/src/theme";
 import { api } from "@/src/api/client";
-import { Coffee, Utensils, Moon } from "lucide-react-native";
+import { Coffee, Utensils, Moon, Circle, CheckCircle2 } from "lucide-react-native";
 
 export default function StudentNutritionScreen() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   
   const [meals, setMeals] = useState<any[]>([]);
+  const [dietPlan, setDietPlan] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchMeals = async () => {
+  const fetchData = async () => {
     try {
-      const res = await api.getMeals();
-      setMeals(res);
+      const [mealsRes, dashRes] = await Promise.all([
+        api.getMeals(),
+        api.getStudentDashboard()
+      ]);
+      setMeals(mealsRes);
+      setDietPlan(dashRes.diet_plan || []);
     } catch (e) {
       console.error(e);
     } finally {
@@ -28,21 +33,21 @@ export default function StudentNutritionScreen() {
 
   useEffect(() => {
     if (role === "student") {
-      fetchMeals();
+      fetchData();
     }
   }, [role]);
 
-  const handleAddMockMeal = async () => {
+  const handleLogPlanMeal = async (planMeal: any) => {
     try {
       await api.logMeal({
-        meal_type: "Almoço",
-        food_name: "Frango com Batata Doce",
-        calories: 350,
-        protein_g: 40,
-        carbs_g: 30,
-        fat_g: 5
+        meal_type: planMeal.name,
+        food_name: planMeal.description,
+        calories: planMeal.calories,
+        protein_g: planMeal.proteins || 0,
+        carbs_g: planMeal.carbs || 0,
+        fat_g: 0
       });
-      fetchMeals();
+      fetchData();
     } catch (e) {
       console.error(e);
     }
@@ -68,41 +73,37 @@ export default function StudentNutritionScreen() {
       </View>
 
       <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 100, gap: 12 }}>
-        {meals.length === 0 ? (
+        {dietPlan.length === 0 ? (
           <View style={{ padding: 30, alignItems: "center", opacity: 0.5 }}>
             <Utensils size={40} color={colors.muted} />
-            <Text style={{ color: colors.muted, marginTop: 12 }}>Nenhuma refeição registrada hoje.</Text>
+            <Text style={{ color: colors.muted, marginTop: 12, textAlign: "center" }}>
+              Seu Personal Trainer ainda não enviou um plano alimentar para você.
+            </Text>
           </View>
         ) : (
-          meals.map((meal) => (
-            <View key={meal.id} style={[styles.mealCard, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}>
-              <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
-                <View style={[styles.iconBox, { backgroundColor: colors.surfaceTertiary }]}>
-                  {meal.meal_type === "Café da Manhã" ? <Coffee size={20} color={colors.brandPrimary} /> : 
-                   meal.meal_type === "Jantar" ? <Moon size={20} color={colors.brandPrimary} /> :
-                   <Utensils size={20} color={colors.brandPrimary} />}
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontWeight: "bold", fontSize: 15, color: colors.onSurface }}>{meal.meal_type}</Text>
-                  <Text style={{ fontSize: 13, color: colors.muted }}>{meal.food_name}</Text>
-                </View>
-                <View style={{ alignItems: "flex-end" }}>
-                  <Text style={{ fontWeight: "bold", fontSize: 15, color: colors.onSurface }}>{meal.calories} kcal</Text>
-                  <Text style={{ fontSize: 11, color: colors.muted }}>{meal.protein_g}g P • {meal.carbs_g}g C</Text>
+          dietPlan.map((planMeal) => {
+            const isConsumed = meals.some(m => m.meal_type === planMeal.name);
+            return (
+              <View key={planMeal.id} style={[styles.mealCard, { backgroundColor: isConsumed ? "rgba(16, 185, 129, 0.05)" : colors.surfaceSecondary, borderColor: isConsumed ? colors.success : colors.border }]}>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+                  <Pressable 
+                    onPress={() => !isConsumed && handleLogPlanMeal(planMeal)}
+                    style={[styles.iconBox, { backgroundColor: isConsumed ? "rgba(16, 185, 129, 0.2)" : colors.surfaceTertiary }]}
+                  >
+                    {isConsumed ? <CheckCircle2 size={24} color={colors.success} /> : <Circle size={24} color={colors.muted} />}
+                  </Pressable>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontWeight: "bold", fontSize: 16, color: colors.onSurface }}>{planMeal.name}</Text>
+                    <Text style={{ fontSize: 13, color: colors.muted }}>{planMeal.description}</Text>
+                  </View>
+                  <View style={{ alignItems: "flex-end" }}>
+                    <Text style={{ fontWeight: "bold", fontSize: 15, color: colors.onSurface }}>{planMeal.calories} kcal</Text>
+                  </View>
                 </View>
               </View>
-            </View>
-          ))
+            );
+          })
         )}
-
-        <Pressable
-          onPress={handleAddMockMeal}
-          style={[styles.addBtn, { backgroundColor: colors.brandPrimary }]}
-        >
-          <Text style={{ color: "#FFF", fontWeight: "bold", fontSize: 16 }}>
-            + Registrar Refeição (Teste)
-          </Text>
-        </Pressable>
       </ScrollView>
     </View>
   );

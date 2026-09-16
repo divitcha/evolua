@@ -50,6 +50,7 @@ const PROFILE_TABS: ChipOption[] = [
   { id: "before-after", label: "Antes e Depois" },
   { id: "assessments", label: "Avaliações" },
   { id: "workouts", label: "Treino Atual" },
+  { id: "diet", label: "Dieta" },
   { id: "anamnesis", label: "Anamnese" },
   { id: "attendance", label: "Frequência" },
   { id: "history", label: "Histórico" },
@@ -285,6 +286,66 @@ export default function StudentDetailScreen() {
           { paddingBottom: Math.max(insets.bottom, 24) + 60 },
         ]}
       >
+        {/* ==================================================== */}
+        {/* TAB 8: DIETA */}
+        {/* ==================================================== */}
+        {activeTab === "diet" && (
+          <View testID="tab-content-diet">
+            <View style={[styles.sectionCard, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}>
+              <View style={styles.sectionHeader}>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                  <Flame size={20} color={colors.brandPrimary} />
+                  <Text style={[styles.sectionTitle, { color: colors.onSurface }]}>Plano Alimentar do Aluno</Text>
+                </View>
+                <Pressable
+                  onPress={() => {
+                    const mealName = Platform.OS === "web" ? window.prompt("Nome da Refeição (ex: Café da Manhã):") : "Nova Refeição";
+                    if (!mealName) return;
+                    const caloriesStr = Platform.OS === "web" ? window.prompt("Calorias estimadas:") : "300";
+                    const calories = parseInt(caloriesStr || "0");
+                    const desc = Platform.OS === "web" ? window.prompt("Descrição (o que comer):") : "1 pão, 2 ovos";
+                    const newMeal = { id: Math.random().toString(), time: "08:00", name: mealName, calories, description: desc || "" };
+                    const currentDiet = student.diet_plan || [];
+                    api.updateStudent(student.id, { diet_plan: [...currentDiet, newMeal] }).then(() => queryClient.invalidateQueries({ queryKey: ["student-detail", student.id] }));
+                  }}
+                  style={{ flexDirection: "row", alignItems: "center", gap: 4 }}
+                >
+                  <Plus size={16} color={colors.brandPrimary} />
+                  <Text style={{ color: colors.brandPrimary, fontWeight: "bold" }}>Adicionar Refeição</Text>
+                </Pressable>
+              </View>
+
+              {(!student.diet_plan || student.diet_plan.length === 0) ? (
+                <View style={[styles.emptyState, { backgroundColor: colors.surfaceTertiary, padding: 16, borderRadius: 12, alignItems: "center" }]}>
+                  <Text style={{ color: colors.muted }}>Nenhuma refeição cadastrada no plano.</Text>
+                </View>
+              ) : (
+                <View style={{ gap: 12 }}>
+                  {student.diet_plan.map(meal => (
+                    <View key={meal.id} style={{ padding: 12, borderRadius: 12, backgroundColor: colors.surfaceTertiary, borderColor: colors.border, borderWidth: 1 }}>
+                      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+                        <Text style={{ fontSize: 16, fontWeight: "bold", color: colors.onSurface }}>{meal.name}</Text>
+                        <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                          <Text style={{ fontSize: 14, fontWeight: "bold", color: colors.brandPrimary }}>{meal.calories} kcal</Text>
+                          <Pressable onPress={() => {
+                            if(window.confirm("Remover esta refeição do plano?")) {
+                              const newPlan = student.diet_plan!.filter(m => m.id !== meal.id);
+                              api.updateStudent(student.id, { diet_plan: newPlan }).then(() => queryClient.invalidateQueries({ queryKey: ["student-detail", student.id] }));
+                            }
+                          }}>
+                            <Trash size={16} color={colors.error} />
+                          </Pressable>
+                        </View>
+                      </View>
+                      <Text style={{ color: colors.muted, marginTop: 4 }}>{meal.description}</Text>
+                    </View>
+                  ))}
+                </View>
+              )}
+            </View>
+          </View>
+        )}
+
         {/* ==================================================== */}
         {/* TAB 1: VISÃO GERAL */}
         {/* ==================================================== */}

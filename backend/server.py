@@ -2085,7 +2085,8 @@ async def get_student_dashboard(student: dict = Depends(get_current_student)):
             "weight_kg": latest_assessment.get("weight_kg") if latest_assessment else student.get("weight_kg", 0),
             "body_fat_pct": latest_assessment.get("body_fat_pct") if latest_assessment else 0,
         },
-        "workout": workout
+        "workout": workout,
+        "diet_plan": student.get("diet_plan", [])
     }
 
 @student_router.post("/student/water")
