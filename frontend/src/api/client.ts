@@ -106,6 +106,14 @@ export const api = {
   // Dashboard
   getDashboard: () => apiRequest<DashboardSummary>("/dashboard/summary"),
 
+  // Student Tracking
+  getStudentDashboard: () => apiRequest<any>("/student/dashboard"),
+  logWater: (amount_ml: number) => apiRequest<any>("/student/water", { method: "POST", body: JSON.stringify({ amount_ml }) }),
+  getMeals: (date?: string) => apiRequest<any>(`/student/meals${date ? `?date=${date}` : ""}`),
+  logMeal: (meal: any) => apiRequest<any>("/student/meals", { method: "POST", body: JSON.stringify(meal) }),
+  getRuns: () => apiRequest<any[]>("/student/runs"),
+  logRun: (run: any) => apiRequest<any>("/student/runs", { method: "POST", body: JSON.stringify(run) }),
+
   // Students
   getStudents: (params?: { search?: string; status?: string; goal?: string }) => {
     const query = new URLSearchParams();

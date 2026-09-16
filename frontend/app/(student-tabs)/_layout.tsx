@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import { LayoutDashboard, Target, Apple, TrendingUp } from "lucide-react-native";
+import { LayoutDashboard, Target, Apple, TrendingUp, Activity } from "lucide-react-native";
 import { useTheme } from "@/src/theme";
 import { Platform } from "react-native";
 
@@ -40,6 +40,13 @@ export default function StudentTabsLayout() {
         options={{
           title: "Dieta",
           tabBarIcon: ({ color }) => <Apple size={24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="runs"
+        options={{
+          title: "Corrida",
+          tabBarIcon: ({ color }) => <Activity size={24} color={color} />,
         }}
       />
       <Tabs.Screen
