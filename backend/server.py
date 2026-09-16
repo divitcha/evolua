@@ -53,8 +53,9 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 logger = logging.getLogger("apextrainer")
 
 app = FastAPI(title="ApexTrainer OS API", description="Personal Trainer and Gym Management System")
-api_router = APIRouter(prefix="/api")
 public_router = APIRouter(prefix="/api")
+api_router = APIRouter(prefix="/api")
+student_router = APIRouter(prefix="/api")
 
 # ==========================================
 # AUTH CONFIG (JWT + bcrypt)
@@ -2152,8 +2153,6 @@ async def log_run(body: Dict[str, Any], student: dict = Depends(get_current_stud
     await db.runs.insert_one(doc)
     doc["id"] = doc.pop("_id")
     return doc
-
-student_router = APIRouter(prefix="/api")
 
 # Include routers
 app.include_router(public_router)
