@@ -32,6 +32,7 @@ import {
   Edit3,
   Plus,
   Trash,
+  Flame,
 } from "lucide-react-native";
 
 import { useTheme, makeStyles } from "@/src/theme";
