@@ -9,6 +9,7 @@ import {
   Linking,
   Alert,
   StyleSheet,
+  Platform,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -177,21 +178,29 @@ export default function StudentDetailScreen() {
           <View style={{ flexDirection: "row", gap: 12 }}>
             <Pressable
               onPress={() => {
-                Alert.alert(
-                  "Excluir Aluno",
-                  "Tem certeza que deseja excluir este aluno? Esta ação não pode ser desfeita.",
-                  [
-                    { text: "Cancelar", style: "cancel" },
-                    { text: "Excluir", style: "destructive", onPress: async () => {
-                        try {
-                          await api.deleteStudent(student.id);
-                          queryClient.invalidateQueries({ queryKey: ["students-list"] });
-                          queryClient.invalidateQueries({ queryKey: ["dashboard-summary"] });
-                          router.replace("/(tabs)");
-                        } catch(e) { console.error(e); }
-                    }}
-                  ]
-                );
+                const executeDelete = async () => {
+                  try {
+                    await api.deleteStudent(student.id);
+                    queryClient.invalidateQueries({ queryKey: ["students-list"] });
+                    queryClient.invalidateQueries({ queryKey: ["dashboard-summary"] });
+                    router.replace("/(tabs)");
+                  } catch(e) { console.error(e); }
+                };
+
+                if (Platform.OS === "web") {
+                  if (window.confirm("Tem certeza que deseja excluir este aluno? Esta ação não pode ser desfeita.")) {
+                    executeDelete();
+                  }
+                } else {
+                  Alert.alert(
+                    "Excluir Aluno",
+                    "Tem certeza que deseja excluir este aluno? Esta ação não pode ser desfeita.",
+                    [
+                      { text: "Cancelar", style: "cancel" },
+                      { text: "Excluir", style: "destructive", onPress: executeDelete }
+                    ]
+                  );
+                }
               }}
               style={[styles.headerIconBtn, { backgroundColor: "rgba(239, 68, 68, 0.15)", borderColor: colors.error }]}
             >
