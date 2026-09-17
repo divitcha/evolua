@@ -2248,7 +2248,7 @@ async def startup_tasks():
         existing = await db.trainers.find_one({"email": "admin@treinai.com"})
         if not existing:
             await db.trainers.insert_one({
-                "_id": "trainer_default",
+                "_id": "admin_default",
                 "name": "Administrador Treinaí",
                 "email": "admin@treinai.com",
                 "password_hash": hash_password("treino123"),
