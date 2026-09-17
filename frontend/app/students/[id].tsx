@@ -15,6 +15,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
 import {
   MessageSquare,
   Activity,
@@ -33,6 +34,10 @@ import {
   Plus,
   Trash,
   Flame,
+  ArrowLeft,
+  MoreVertical,
+  MapPin,
+  User
 } from "lucide-react-native";
 
 import { useTheme, makeStyles } from "@/src/theme";
@@ -171,104 +176,100 @@ export default function StudentDetailScreen() {
 
   return (
     <View testID="student-detail-screen" style={[styles.container, { backgroundColor: colors.surface }]}>
-      <Header
-        title={student.name}
-        subtitle={`${student.goal} • ${student.training_level}`}
-        showBack
-        testID="student-detail-header"
-        rightElement={
-          <View style={{ flexDirection: "row", gap: 12 }}>
-            <Pressable
-              onPress={() => {
-                const executeDelete = async () => {
-                  try {
-                    await api.deleteStudent(student.id);
-                    queryClient.invalidateQueries({ queryKey: ["students-list"] });
-                    queryClient.invalidateQueries({ queryKey: ["dashboard-summary"] });
-                    router.replace("/(tabs)");
-                  } catch(e) { console.error(e); }
-                };
-
-                if (Platform.OS === "web") {
-                  if (window.confirm("Tem certeza que deseja excluir este aluno? Esta ação não pode ser desfeita.")) {
-                    executeDelete();
-                  }
-                } else {
-                  Alert.alert(
-                    "Excluir Aluno",
-                    "Tem certeza que deseja excluir este aluno? Esta ação não pode ser desfeita.",
-                    [
-                      { text: "Cancelar", style: "cancel" },
-                      { text: "Excluir", style: "destructive", onPress: executeDelete }
-                    ]
-                  );
+      <LinearGradient
+        colors={["#1E40AF", "#2563EB"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        style={{
+          paddingTop: Math.max(insets.top, 24),
+          paddingBottom: 40,
+          paddingHorizontal: 24,
+          borderBottomLeftRadius: 40,
+          borderBottomRightRadius: 40,
+          position: "relative",
+          zIndex: 1
+        }}
+      >
+        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+          <Pressable onPress={() => router.back()}>
+            <ArrowLeft size={24} color="#FFFFFF" />
+          </Pressable>
+          <Pressable
+            onPress={() => {
+              const executeDelete = async () => {
+                try {
+                  await api.deleteStudent(student.id);
+                  queryClient.invalidateQueries({ queryKey: ["students-list"] });
+                  queryClient.invalidateQueries({ queryKey: ["dashboard-summary"] });
+                  router.replace("/(tabs)");
+                } catch(e) { console.error(e); }
+              };
+              if (Platform.OS === "web") {
+                if (window.confirm("Tem certeza que deseja excluir este aluno?")) {
+                  executeDelete();
                 }
-              }}
-              style={[styles.headerIconBtn, { backgroundColor: "rgba(239, 68, 68, 0.15)", borderColor: colors.error }]}
-            >
-              <Trash size={20} color={colors.error} />
-            </Pressable>
-            <Pressable
-              testID="header-whatsapp-btn"
-              onPress={openWhatsApp}
-              style={[styles.headerIconBtn, { backgroundColor: "rgba(16, 185, 129, 0.15)", borderColor: colors.success }]}
-            >
-              <Phone size={20} color={colors.success} />
-            </Pressable>
-          </View>
-        }
-      />
+              } else {
+                Alert.alert(
+                  "Ações do Aluno",
+                  "O que deseja fazer?",
+                  [
+                    { text: "Cancelar", style: "cancel" },
+                    { text: "Abrir WhatsApp", onPress: openWhatsApp },
+                    { text: "Excluir", style: "destructive", onPress: executeDelete }
+                  ]
+                );
+              }
+            }}
+          >
+            <MoreVertical size={24} color="#FFFFFF" />
+          </Pressable>
+        </View>
 
-      {/* STUDENT HERO CARD */}
-      <View style={[styles.heroCard, { backgroundColor: colors.surfaceSecondary, borderBottomColor: colors.border }]}>
-        <Image
-          source={{ uri: student.photo_url || "https://images.unsplash.com/photo-1637651684506-07e16fcf7b06?w=200" }}
-          style={styles.heroAvatar}
-          contentFit="cover"
-        />
-        <View style={styles.heroInfo}>
-          <View style={styles.heroNameRow}>
-            <Text style={[styles.heroName, { color: colors.onSurface }]} numberOfLines={1}>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 16 }}>
+          <Image
+            source={{ uri: student.photo_url || "https://images.unsplash.com/photo-1637651684506-07e16fcf7b06?w=200" }}
+            style={{ width: 80, height: 80, borderRadius: 40, borderWidth: 4, borderColor: "rgba(96, 165, 250, 0.3)" }}
+            contentFit="cover"
+          />
+          <View>
+            <Text style={{ fontSize: 24, fontWeight: "bold", color: "#FFFFFF", marginBottom: 4 }}>
               {student.name}
             </Text>
-            <View
-              style={[
-                styles.statusPill,
-                {
-                  backgroundColor:
-                    student.status === "ativo"
-                      ? "rgba(16, 185, 129, 0.15)"
-                      : student.status === "inadimplente"
-                      ? "rgba(239, 68, 68, 0.15)"
-                      : "rgba(245, 158, 11, 0.15)",
-                },
-              ]}
-            >
-              <Text
-                style={[
-                  styles.statusPillText,
-                  {
-                    color:
-                      student.status === "ativo"
-                        ? colors.success
-                        : student.status === "inadimplente"
-                        ? colors.error
-                        : colors.warning,
-                  },
-                ]}
-              >
-                {student.status.toUpperCase()}
-              </Text>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+              <View style={{ backgroundColor: "#10B981", paddingHorizontal: 8, paddingVertical: 2, borderRadius: 12 }}>
+                <Text style={{ fontSize: 10, fontWeight: "bold", color: "#FFFFFF" }}>{student.status.toUpperCase()}</Text>
+              </View>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
+                <User size={12} color="#DBEAFE" />
+                <Text style={{ fontSize: 12, color: "#DBEAFE" }}>{student.age || 26} anos</Text>
+              </View>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
+                <MapPin size={12} color="#DBEAFE" />
+                <Text style={{ fontSize: 12, color: "#DBEAFE" }}>Plano {student.plan}</Text>
+              </View>
             </View>
           </View>
+        </View>
+      </LinearGradient>
 
-          <Text style={[styles.heroDetails, { color: colors.onSurfaceSecondary }]}>
-            {student.gender} • {student.age || 26} anos • Plano {student.plan} • Venc. {student.due_date}
+      {/* FLOATING STATS CARDS */}
+      <View style={{ paddingHorizontal: 24, marginTop: -20, marginBottom: 24, zIndex: 10, flexDirection: "row", gap: 12 }}>
+        <View style={{ flex: 1, backgroundColor: "#22D3EE", padding: 16, borderRadius: 24, shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 12, elevation: 5 }}>
+          <Text style={{ fontSize: 12, fontWeight: "500", color: "rgba(255,255,255,0.9)", textAlign: "center" }}>IMC</Text>
+          <Text style={{ fontSize: 24, fontWeight: "bold", color: "#FFFFFF", textAlign: "center", marginVertical: 2 }}>{bmi}</Text>
+          <Text style={{ fontSize: 10, color: "rgba(255,255,255,0.9)", textAlign: "center" }}>{parseFloat(bmi) > 25 ? "Sobrepeso" : "Normal"}</Text>
+        </View>
+        <View style={{ flex: 1, backgroundColor: "#6366F1", padding: 16, borderRadius: 24, shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 12, elevation: 5 }}>
+          <Text style={{ fontSize: 12, fontWeight: "500", color: "rgba(255,255,255,0.9)", textAlign: "center" }}>Frequência</Text>
+          <Text style={{ fontSize: 24, fontWeight: "bold", color: "#FFFFFF", textAlign: "center", marginVertical: 2 }}>{student.frequency || 3}x</Text>
+          <Text style={{ fontSize: 10, color: "rgba(255,255,255,0.9)", textAlign: "center" }}>por semana</Text>
+        </View>
+        <View style={{ flex: 1, backgroundColor: "#2DD4BF", padding: 16, borderRadius: 24, shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 12, elevation: 5 }}>
+          <Text style={{ fontSize: 12, fontWeight: "500", color: "rgba(255,255,255,0.9)", textAlign: "center" }}>Plano</Text>
+          <Text style={{ fontSize: 24, fontWeight: "bold", color: "#FFFFFF", textAlign: "center", marginVertical: 2 }}>
+            {Math.max(0, Math.floor((new Date(student.payment_due_date || Date.now()).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))}
           </Text>
-
-          <Text style={[styles.heroNotes, { color: colors.brandPrimary }]} numberOfLines={1}>
-            {student.notes || "Sem observações adicionais"}
-          </Text>
+          <Text style={{ fontSize: 10, color: "rgba(255,255,255,0.9)", textAlign: "center" }}>dias restantes</Text>
         </View>
       </View>
 
@@ -1029,6 +1030,42 @@ export default function StudentDetailScreen() {
                   Enviar
                 </Text>
               </Pressable>
+            </View>
+
+            {/* SEÇÃO DE ALERTAS INTELIGENTES */}
+            <View style={{ marginTop: 24, paddingTop: 24, borderTopWidth: 1, borderTopColor: colors.border }}>
+              <Text style={{ fontSize: 14, fontWeight: "bold", color: colors.onSurface, marginBottom: 16 }}>Alertas inteligentes</Text>
+              
+              <View style={{ flexDirection: "row", alignItems: "flex-start", gap: 12, backgroundColor: colors.surfaceSecondary, padding: 16, borderRadius: 16, borderWidth: 1, borderColor: "rgba(239, 68, 68, 0.3)", marginBottom: 12 }}>
+                <View style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: "rgba(239, 68, 68, 0.1)", alignItems: "center", justifyContent: "center" }}>
+                  <Activity size={20} color="#EF4444" />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 14, fontWeight: "bold", color: colors.onSurface }}>Avaliação atrasada</Text>
+                  <Text style={{ fontSize: 12, color: colors.muted, marginTop: 2, marginBottom: 8 }}>
+                    {student.name} está com avaliação atrasada há 14 dias.
+                  </Text>
+                  <Pressable onPress={() => router.push(`/students/${student.id}/assessment/new`)} style={{ backgroundColor: "#EF4444", paddingVertical: 6, borderRadius: 16, alignItems: "center" }}>
+                    <Text style={{ color: "#FFFFFF", fontSize: 12, fontWeight: "bold" }}>Agendar avaliação</Text>
+                  </Pressable>
+                </View>
+              </View>
+
+              <View style={{ flexDirection: "row", alignItems: "flex-start", gap: 12, backgroundColor: colors.surfaceSecondary, padding: 16, borderRadius: 16, borderWidth: 1, borderColor: "rgba(245, 158, 11, 0.3)", marginBottom: 12 }}>
+                <View style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: "rgba(245, 158, 11, 0.1)", alignItems: "center", justifyContent: "center" }}>
+                  <Clock size={20} color="#F59E0B" />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 14, fontWeight: "bold", color: colors.onSurface }}>Plano próximo do vencimento</Text>
+                  <Text style={{ fontSize: 12, color: colors.muted, marginTop: 2, marginBottom: 8 }}>
+                    Vencimento do plano em {Math.max(0, Math.floor((new Date(student.payment_due_date || Date.now()).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))} dias.
+                  </Text>
+                  <Pressable style={{ backgroundColor: "#F59E0B", paddingVertical: 6, borderRadius: 16, alignItems: "center" }}>
+                    <Text style={{ color: "#FFFFFF", fontSize: 12, fontWeight: "bold" }}>Renovar plano</Text>
+                  </Pressable>
+                </View>
+              </View>
+
             </View>
           </View>
         )}

@@ -76,101 +76,58 @@ export default function StudentsScreen() {
 
   const renderStudentCard = ({ item }: { item: Student }) => {
     const badge = getStatusBadge(item.status);
-    const bmi = item.height_cm > 0 ? (item.weight_kg / Math.pow(item.height_cm / 100, 2)).toFixed(1) : "-";
 
     return (
       <Pressable
         testID={`student-card-${item.id}`}
         onPress={() => router.push(`/students/${item.id}`)}
-        style={[styles.card, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          backgroundColor: colors.surfaceSecondary,
+          padding: 16,
+          borderRadius: 24,
+          borderWidth: 1,
+          borderColor: colors.border,
+          marginBottom: 12,
+        }}
       >
-        <View style={styles.cardHeader}>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 16, flex: 1 }}>
           <Image
             source={{ uri: item.photo_url || "https://images.unsplash.com/photo-1637651684506-07e16fcf7b06?w=200" }}
-            style={styles.avatar}
+            style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: colors.surfaceTertiary }}
             contentFit="cover"
           />
-          <View style={styles.cardHeaderInfo}>
-            <View style={styles.nameRow}>
-              <Text style={[styles.name, { color: colors.onSurface }]} numberOfLines={1}>
+          <View style={{ flex: 1 }}>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 2 }}>
+              <Text style={{ fontWeight: "bold", fontSize: 16, color: colors.onSurface }} numberOfLines={1}>
                 {item.name}
               </Text>
-              <View style={[styles.statusBadge, { backgroundColor: badge.bg }]}>
-                <Text style={[styles.statusText, { color: badge.text }]}>{badge.label}</Text>
+              <View style={{ backgroundColor: badge.bg, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 12 }}>
+                <Text style={{ fontSize: 10, fontWeight: "bold", color: badge.text }}>{badge.label}</Text>
               </View>
             </View>
-
-            <Text style={[styles.metaText, { color: colors.onSurfaceSecondary }]}>
-              {item.gender} • {item.age || 25} anos • Plano {item.plan}
+            <Text style={{ fontSize: 12, color: colors.muted, marginBottom: 4 }}>
+              {item.goal || "Condicionamento Geral"}
             </Text>
-
-            <Text style={[styles.goalBadgeText, { color: colors.brandPrimary }]}>
-              Objetivo: {item.goal} ({item.training_level})
-            </Text>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
+                <Dumbbell size={12} color={colors.muted} />
+                <Text style={{ fontSize: 10, fontWeight: "500", color: colors.muted }}>
+                  {item.frequency || 3}x/semana
+                </Text>
+              </View>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
+                <Calendar size={12} color={colors.muted} />
+                <Text style={{ fontSize: 10, fontWeight: "500", color: colors.muted }}>
+                  Vencimento {new Date(item.payment_due_date || Date.now()).toLocaleDateString("pt-BR")}
+                </Text>
+              </View>
+            </View>
           </View>
         </View>
-
-        {/* METRICS STRIP */}
-        <View style={[styles.metricsStrip, { backgroundColor: colors.surfaceTertiary, borderColor: colors.border }]}>
-          <View style={styles.metricCol}>
-            <Text style={[styles.metricLabel, { color: colors.muted }]}>Peso Atual</Text>
-            <Text style={[styles.metricVal, { color: colors.onSurface }]}>{item.weight_kg} kg</Text>
-          </View>
-          <View style={[styles.metricDivider, { backgroundColor: colors.border }]} />
-          <View style={styles.metricCol}>
-            <Text style={[styles.metricLabel, { color: colors.muted }]}>Altura</Text>
-            <Text style={[styles.metricVal, { color: colors.onSurface }]}>{item.height_cm} cm</Text>
-          </View>
-          <View style={[styles.metricDivider, { backgroundColor: colors.border }]} />
-          <View style={styles.metricCol}>
-            <Text style={[styles.metricLabel, { color: colors.muted }]}>IMC</Text>
-            <Text style={[styles.metricVal, { color: colors.onSurface }]}>{bmi}</Text>
-          </View>
-          <View style={[styles.metricDivider, { backgroundColor: colors.border }]} />
-          <View style={styles.metricCol}>
-            <Text style={[styles.metricLabel, { color: colors.muted }]}>Mensalidade</Text>
-            <Text style={[styles.metricVal, { color: colors.brandPrimary }]}>R$ {item.monthly_fee}</Text>
-          </View>
-        </View>
-
-        {/* QUICK ACTIONS ROW */}
-        <View style={styles.actionsRow}>
-          <Pressable
-            testID={`student-whatsapp-${item.id}`}
-            onPress={() => openWhatsApp(item.phone, item.name)}
-            style={[styles.actionBtn, { backgroundColor: colors.surfaceTertiary }]}
-          >
-            <MessageSquare size={14} color={colors.onSurface} />
-            <Text style={[styles.actionBtnText, { color: colors.onSurface }]}>WhatsApp</Text>
-          </Pressable>
-
-          <Pressable
-            testID={`student-eval-btn-${item.id}`}
-            onPress={() => router.push(`/students/${item.id}/assessment/new`)}
-            style={[styles.actionBtn, { backgroundColor: colors.surfaceTertiary }]}
-          >
-            <Activity size={14} color={colors.brandPrimary} />
-            <Text style={[styles.actionBtnText, { color: colors.onSurface }]}>Avaliar</Text>
-          </Pressable>
-
-          <Pressable
-            testID={`student-workout-btn-${item.id}`}
-            onPress={() => router.push(`/students/${item.id}/workout/new`)}
-            style={[styles.actionBtn, { backgroundColor: colors.surfaceTertiary }]}
-          >
-            <Dumbbell size={14} color={colors.info} />
-            <Text style={[styles.actionBtnText, { color: colors.onSurface }]}>Treino</Text>
-          </Pressable>
-
-          <Pressable
-            testID={`student-view-full-${item.id}`}
-            onPress={() => router.push(`/students/${item.id}`)}
-            style={[styles.viewProfileBtn, { backgroundColor: colors.brandPrimary }]}
-          >
-            <Text style={[styles.viewProfileText, { color: colors.onBrandPrimary }]}>Perfil</Text>
-            <ChevronRight size={14} color={colors.onBrandPrimary} />
-          </Pressable>
-        </View>
+        <ChevronRight size={20} color={colors.muted} />
       </Pressable>
     );
   };
@@ -287,10 +244,11 @@ const useStyles = makeStyles((colors) => ({
   searchInputWrapper: {
     flexDirection: "row",
     alignItems: "center",
-    borderRadius: 12,
     borderWidth: 1,
-    paddingHorizontal: 12,
-    height: 44,
+    borderRadius: 24,
+    paddingHorizontal: 16,
+    height: 48,
+    marginBottom: 12,
   },
   searchIcon: {
     marginRight: 8,

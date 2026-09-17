@@ -65,80 +65,78 @@ export default function LoginScreen() {
         {/* BRAND */}
         <View style={styles.brandArea}>
           <LinearGradient
-            colors={[colors.brandPrimary, colors.brandSecondary]}
+            colors={["#2563EB", "#7C3AED"]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.logoBox}
           >
-            <Dumbbell size={30} color="#FFFFFF" />
+            <Dumbbell size={32} color="#FFFFFF" style={{ transform: [{ rotate: "-45deg" }] }} />
           </LinearGradient>
           <Text style={[styles.brandTitle, { color: colors.onSurface }]}>Treinaí</Text>
           <Text style={[styles.brandSubtitle, { color: colors.onSurfaceSecondary }]}>
-            O seu app de acompanhamento fitness
+            Gestão inteligente para Personal Trainers
           </Text>
         </View>
 
         {/* CARD */}
         <View style={[styles.card, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}>
-          <Text style={[styles.cardTitle, { color: colors.onSurface }]}>
-            {mode === "login" ? "Bem-vindo de volta" : "Criar conta"}
-          </Text>
-          <Text style={[styles.cardCaption, { color: colors.onSurfaceSecondary }]}>
-            {mode === "login"
-              ? "Escolha seu perfil e acesse sua conta."
-              : "Crie sua conta de treinador grátis."}
-          </Text>
 
           {mode === "register" && (
+            <View style={{ marginBottom: 12 }}>
+              <Text style={{ fontSize: 12, fontWeight: "bold", color: colors.onSurface, marginBottom: 4 }}>Nome completo</Text>
+              <View style={styles.field}>
+                <TextInput
+                  testID="input-name"
+                  value={name}
+                  onChangeText={setName}
+                  placeholder="Seu Nome"
+                  placeholderTextColor={colors.muted}
+                  returnKeyType="next"
+                  style={[styles.input, { color: colors.onSurface }]}
+                />
+              </View>
+            </View>
+          )}
+
+          <View style={{ marginBottom: 12 }}>
+            <Text style={{ fontSize: 12, fontWeight: "bold", color: colors.onSurface, marginBottom: 4 }}>E-mail</Text>
             <View style={styles.field}>
-              <User size={18} color={colors.muted} />
               <TextInput
-                testID="input-name"
-                value={name}
-                onChangeText={setName}
-                placeholder="Seu Nome"
+                testID="input-email"
+                value={email}
+                onChangeText={setEmail}
+                placeholder="exemplo@email.com"
                 placeholderTextColor={colors.muted}
+                autoCapitalize="none"
+                keyboardType="email-address"
                 returnKeyType="next"
                 style={[styles.input, { color: colors.onSurface }]}
               />
             </View>
-          )}
-
-          <View style={styles.field}>
-            <Mail size={18} color={colors.muted} />
-            <TextInput
-              testID="input-email"
-              value={email}
-              onChangeText={setEmail}
-              placeholder="E-mail"
-              placeholderTextColor={colors.muted}
-              autoCapitalize="none"
-              keyboardType="email-address"
-              returnKeyType="next"
-              style={[styles.input, { color: colors.onSurface }]}
-            />
           </View>
 
-          <View style={styles.field}>
-            <Lock size={18} color={colors.muted} />
-            <TextInput
-              testID="input-password"
-              value={password}
-              onChangeText={setPassword}
-              placeholder="Senha"
-              placeholderTextColor={colors.muted}
-              secureTextEntry={!showPassword}
-              returnKeyType="done"
-              onSubmitEditing={handleSubmit}
-              style={[styles.input, { color: colors.onSurface }]}
-            />
-            <Pressable onPress={() => setShowPassword(!showPassword)} style={{ padding: 4 }}>
-              {showPassword ? (
-                <EyeOff size={18} color={colors.muted} />
-              ) : (
-                <Eye size={18} color={colors.muted} />
-              )}
-            </Pressable>
+          <View style={{ marginBottom: 12 }}>
+            <Text style={{ fontSize: 12, fontWeight: "bold", color: colors.onSurface, marginBottom: 4 }}>Senha</Text>
+            <View style={styles.field}>
+              <TextInput
+                testID="input-password"
+                value={password}
+                onChangeText={setPassword}
+                placeholder="Sua senha"
+                placeholderTextColor={colors.muted}
+                secureTextEntry={!showPassword}
+                returnKeyType="done"
+                onSubmitEditing={handleSubmit}
+                style={[styles.input, { color: colors.onSurface }]}
+              />
+              <Pressable onPress={() => setShowPassword(!showPassword)} style={{ padding: 4 }}>
+                {showPassword ? (
+                  <EyeOff size={18} color={colors.muted} />
+                ) : (
+                  <Eye size={18} color={colors.muted} />
+                )}
+              </Pressable>
+            </View>
           </View>
 
           {!!error && (
@@ -151,18 +149,22 @@ export default function LoginScreen() {
             testID="btn-submit-auth"
             onPress={handleSubmit}
             disabled={loading}
-            style={[styles.submitBtn, { backgroundColor: colors.brandPrimary, opacity: loading ? 0.7 : 1 }]}
+            style={{ marginTop: 6 }}
           >
-            {loading ? (
-              <ActivityIndicator size="small" color="#FFFFFF" />
-            ) : (
-              <>
+            <LinearGradient
+              colors={["#2563EB", "#7C3AED"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={[styles.submitBtn, { opacity: loading ? 0.7 : 1 }]}
+            >
+              {loading ? (
+                <ActivityIndicator size="small" color="#FFFFFF" />
+              ) : (
                 <Text style={styles.submitText}>
-                  {mode === "login" ? "Entrar" : "Criar conta"}
+                  {mode === "login" ? "Entrar no Sistema" : "Criar conta"}
                 </Text>
-                <ArrowRight size={18} color="#FFFFFF" />
-              </>
-            )}
+              )}
+            </LinearGradient>
           </Pressable>
 
           <Pressable
