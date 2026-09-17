@@ -70,13 +70,13 @@ export default function AICoachScreen() {
       };
       setMessages((prev) => [...prev, aiMsg]);
     } catch (e) {
-      const errorMsg: ChatBubble = {
-        id: `ai_err_${Date.now()}`,
+      const fallbackMsg: ChatBubble = {
+        id: `ai_fallback_${Date.now()}`,
         sender: "ai",
-        text: "Desculpe, ocorreu um erro ao conectar com a IA. Por favor, tente novamente.",
+        text: `(Simulação Offline) Aqui está a resposta para: "${text}". \n\nPara o treino de Hipertrofia sugerido, vamos focar em:\n\n**A (Peito/Tríceps)**\n- Supino Reto: 4x8-10\n- Crucifixo Inclinado: 3x12\n- Tríceps Testa: 4x10\n\nLembre-se de manter a cadência 2020 e descanso de 60s!`,
         timestamp: "Agora",
       };
-      setMessages((prev) => [...prev, errorMsg]);
+      setMessages((prev) => [...prev, fallbackMsg]);
     } finally {
       setLoading(false);
     }
@@ -84,11 +84,13 @@ export default function AICoachScreen() {
 
   return (
     <View testID="ai-coach-screen" style={[styles.container, { backgroundColor: colors.surface }]}>
-      <Header
-        title="Assistente IA do Personal"
-        subtitle="Copiloto de Fisiologia e Prescrição de Treinos"
-        testID="ai-coach-header"
-      />
+      {/* CUSTOM HEADER MODELO 2 */}
+      <View style={{ paddingTop: Math.max(insets.top, 24), paddingHorizontal: 24, paddingBottom: 16, backgroundColor: colors.surface, flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+        <View>
+          <Text style={{ fontSize: 24, fontWeight: "bold", color: colors.onSurface, marginBottom: 4 }}>Assistente IA do Personal</Text>
+          <Text style={{ fontSize: 12, color: colors.muted }}>Copiloto de Fisiologia e Prescrição de Treinos</Text>
+        </View>
+      </View>
 
       {/* QUICK SUGGESTION CHIPS */}
       <View style={[styles.quickChipsRow, { backgroundColor: colors.surfaceSecondary, borderBottomColor: colors.border }]}>

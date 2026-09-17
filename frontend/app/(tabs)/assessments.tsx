@@ -59,25 +59,25 @@ export default function AssessmentsScreen() {
 
   return (
     <View testID="assessments-screen" style={[styles.container, { backgroundColor: colors.surface }]}>
-      <Header
-        title="Avaliações Físicas"
-        subtitle="Protocolos Pollock 3 & 7 Dobras e Antropometria"
-        testID="assessments-header"
-        rightElement={
-          <Pressable
-            testID="btn-new-assessment-top"
-            onPress={() => {
-              if (students.length > 0) {
-                router.push(`/students/${students[0].id}/assessment/new`);
-              }
-            }}
-            style={[styles.addHeaderBtn, { backgroundColor: colors.brandPrimary }]}
-          >
-            <PlusCircle size={16} color={colors.onBrandPrimary} />
-            <Text style={[styles.addHeaderText, { color: colors.onBrandPrimary }]}>Nova Avaliação</Text>
-          </Pressable>
-        }
-      />
+      {/* CUSTOM HEADER MODELO 2 */}
+      <View style={{ paddingTop: Math.max(insets.top, 24), paddingHorizontal: 24, paddingBottom: 16, backgroundColor: colors.surface, flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+        <View>
+          <Text style={{ fontSize: 24, fontWeight: "bold", color: colors.onSurface, marginBottom: 4 }}>Avaliações Físicas</Text>
+          <Text style={{ fontSize: 12, color: colors.muted }}>Protocolos Pollock 3 & 7 Dobras e Antropometria</Text>
+        </View>
+        <Pressable
+          testID="btn-new-assessment-top"
+          onPress={() => {
+            if (students.length > 0) {
+              router.push(`/students/${students[0].id}/assessment/new`);
+            }
+          }}
+          style={{ backgroundColor: colors.brandPrimary, flexDirection: "row", alignItems: "center", paddingHorizontal: 16, paddingVertical: 8, borderRadius: 24, gap: 8 }}
+        >
+          <PlusCircle size={16} color={colors.onBrandPrimary} />
+          <Text style={{ fontSize: 14, fontWeight: "bold", color: colors.onBrandPrimary }}>Nova Avaliação</Text>
+        </Pressable>
+      </View>
 
       {/* P0 FILTER CHIP ROW */}
       <FilterChipRow

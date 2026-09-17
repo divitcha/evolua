@@ -134,21 +134,18 @@ export default function StudentsScreen() {
 
   return (
     <View testID="students-screen" style={[styles.container, { backgroundColor: colors.surface }]}>
-      <Header
-        title="Alunos"
-        subtitle={`${students.length} cadastrados no sistema`}
-        testID="students-header"
-        rightElement={
-          <Pressable
-            testID="btn-new-student-header"
-            onPress={() => router.push("/students/new")}
-            style={[styles.addHeaderBtn, { backgroundColor: colors.brandPrimary }]}
-          >
-            <UserPlus size={16} color={colors.onBrandPrimary} />
-            <Text style={[styles.addHeaderText, { color: colors.onBrandPrimary }]}>Cadastrar</Text>
-          </Pressable>
-        }
-      />
+      {/* CUSTOM HEADER MODELO 2 */}
+      <View style={{ paddingTop: Math.max(insets.top, 24), paddingHorizontal: 24, paddingBottom: 16, backgroundColor: colors.surface, flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+        <Text style={{ fontSize: 24, fontWeight: "bold", color: colors.onSurface }}>Meus alunos</Text>
+        <Pressable
+          testID="btn-new-student-header"
+          onPress={() => router.push("/students/new")}
+          style={{ backgroundColor: colors.brandPrimary, flexDirection: "row", alignItems: "center", paddingHorizontal: 16, paddingVertical: 8, borderRadius: 24, gap: 8 }}
+        >
+          <UserPlus size={16} color={colors.onBrandPrimary} />
+          <Text style={{ fontSize: 14, fontWeight: "bold", color: colors.onBrandPrimary }}>Cadastrar</Text>
+        </Pressable>
+      </View>
 
       {/* SEARCH BAR (Sticky with header) */}
       <View style={[styles.searchContainer, { backgroundColor: colors.surface, borderBottomColor: colors.border }]}>

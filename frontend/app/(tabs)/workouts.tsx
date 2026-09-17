@@ -53,25 +53,25 @@ export default function WorkoutsScreen() {
 
   return (
     <View testID="workouts-screen" style={[styles.container, { backgroundColor: colors.surface }]}>
-      <Header
-        title="Prescrição de Treinos"
-        subtitle="Divisões de Treino, Séries, Cargas e Cadência"
-        testID="workouts-header"
-        rightElement={
-          <Pressable
-            testID="btn-new-workout-top"
-            onPress={() => {
-              if (students.length > 0) {
-                router.push(`/students/${students[0].id}/workout/new`);
-              }
-            }}
-            style={[styles.addHeaderBtn, { backgroundColor: colors.brandPrimary }]}
-          >
-            <PlusCircle size={16} color={colors.onBrandPrimary} />
-            <Text style={[styles.addHeaderText, { color: colors.onBrandPrimary }]}>Novo Treino</Text>
-          </Pressable>
-        }
-      />
+      {/* CUSTOM HEADER MODELO 2 */}
+      <View style={{ paddingTop: Math.max(insets.top, 24), paddingHorizontal: 24, paddingBottom: 16, backgroundColor: colors.surface, flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+        <View>
+          <Text style={{ fontSize: 24, fontWeight: "bold", color: colors.onSurface, marginBottom: 4 }}>Prescrição de Treinos</Text>
+          <Text style={{ fontSize: 12, color: colors.muted }}>Divisões de Treino, Séries, Cargas e Cadência</Text>
+        </View>
+        <Pressable
+          testID="btn-new-workout-top"
+          onPress={() => {
+            if (students.length > 0) {
+              router.push(`/students/${students[0].id}/workout/new`);
+            }
+          }}
+          style={{ backgroundColor: colors.brandPrimary, flexDirection: "row", alignItems: "center", paddingHorizontal: 16, paddingVertical: 8, borderRadius: 24, gap: 8 }}
+        >
+          <PlusCircle size={16} color={colors.onBrandPrimary} />
+          <Text style={{ fontSize: 14, fontWeight: "bold", color: colors.onBrandPrimary }}>Novo Treino</Text>
+        </Pressable>
+      </View>
 
       {/* P0 FILTER CHIP ROW */}
       <FilterChipRow
