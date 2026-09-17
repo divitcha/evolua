@@ -1,4 +1,4 @@
-﻿import React, { useState } from "react";
+import React, { useState } from "react";
 import { View, Text, ScrollView, Pressable, ActivityIndicator, Alert, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -57,7 +57,7 @@ export default function AdminTrainers() {
     <View style={[styles.container, { backgroundColor: colors.surface }]}>
       <Header
         title="Gestão de Personais"
-        rightContent={
+        rightElement={
           <Pressable onPress={signOut}>
             <LogOut size={24} color={colors.onSurface} />
           </Pressable>
