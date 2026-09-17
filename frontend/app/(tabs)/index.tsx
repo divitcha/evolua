@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, ScrollView, Pressable, RefreshControl, StyleSheet, Linking } from "react-native";
+import { View, Text, ScrollView, Pressable, RefreshControl, StyleSheet, Linking, Platform, Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -67,9 +67,20 @@ export default function DashboardScreen() {
         <View style={{ flexDirection: "row", alignItems: "center", gap: 16 }}>
           <Pressable onPress={handleNotifyAlerts}>
             <Bell size={24} color={colors.muted} />
-            <View style={{ position: "absolute", top: 0, right: 0, width: 8, height: 8, backgroundColor: "#EF4444", borderRadius: 4 }} />
           </Pressable>
-          <Pressable onPress={signOut} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: colors.surfaceTertiary, overflow: "hidden", borderWidth: 1, borderColor: colors.border }}>
+          <Pressable 
+            onPress={() => {
+              if (Platform.OS === "web") {
+                if (window.confirm("Deseja sair do sistema?")) signOut();
+              } else {
+                Alert.alert("Sair", "Deseja sair do sistema?", [
+                  { text: "Cancelar", style: "cancel" },
+                  { text: "Sair", style: "destructive", onPress: signOut }
+                ]);
+              }
+            }} 
+            style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: colors.surfaceTertiary, overflow: "hidden", borderWidth: 1, borderColor: colors.border }}
+          >
              <Image source="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100" style={{ width: "100%", height: "100%" }} />
           </Pressable>
         </View>
