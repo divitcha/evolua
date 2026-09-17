@@ -65,7 +65,7 @@ export default function LoginScreen() {
         {/* BRAND */}
         <View style={styles.brandArea}>
           <LinearGradient
-            colors={["#2563EB", "#7C3AED"]}
+            colors={["#059669", "#10B981"]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.logoBox}
@@ -152,7 +152,7 @@ export default function LoginScreen() {
             style={{ marginTop: 6 }}
           >
             <LinearGradient
-              colors={["#2563EB", "#7C3AED"]}
+              colors={["#059669", "#10B981"]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={[styles.submitBtn, { opacity: loading ? 0.7 : 1 }]}

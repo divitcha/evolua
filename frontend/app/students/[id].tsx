@@ -177,7 +177,7 @@ export default function StudentDetailScreen() {
   return (
     <View testID="student-detail-screen" style={[styles.container, { backgroundColor: colors.surface }]}>
       <LinearGradient
-        colors={["#1E40AF", "#2563EB"]}
+        colors={["#065F46", "#059669"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
         style={{
@@ -198,30 +198,35 @@ export default function StudentDetailScreen() {
             onPress={() => {
               const executeDelete = async () => {
                 try {
-                  await api.deleteStudent(student.id);
+                  await api.deleteStudent(id as string);
                   queryClient.invalidateQueries({ queryKey: ["students-list"] });
-                  queryClient.invalidateQueries({ queryKey: ["dashboard-summary"] });
-                  router.replace("/(tabs)");
-                } catch(e) { console.error(e); }
+                  router.replace("/(tabs)/students");
+                } catch (e) {
+                  // handle
+                }
               };
               if (Platform.OS === "web") {
-                if (window.confirm("Tem certeza que deseja excluir este aluno?")) {
-                  executeDelete();
+                const action = window.prompt("Opções:\n1. Editar Aluno\n2. Excluir Aluno\n\nDigite 1 ou 2:");
+                if (action === "1") {
+                  router.push(`/students/${id}/edit`);
+                } else if (action === "2") {
+                  if (window.confirm("Certeza que deseja excluir?")) executeDelete();
                 }
               } else {
-                Alert.alert(
-                  "Ações do Aluno",
-                  "O que deseja fazer?",
-                  [
-                    { text: "Cancelar", style: "cancel" },
-                    { text: "Abrir WhatsApp", onPress: openWhatsApp },
-                    { text: "Excluir", style: "destructive", onPress: executeDelete }
-                  ]
-                );
+                Alert.alert("Opções do Aluno", "Escolha uma ação", [
+                  { text: "Cancelar", style: "cancel" },
+                  { text: "Editar Aluno", onPress: () => router.push(`/students/${id}/edit`) },
+                  { text: "Excluir", style: "destructive", onPress: () => {
+                      Alert.alert("Confirmar Exclusão", "Certeza que deseja excluir este aluno?", [
+                        { text: "Cancelar", style: "cancel" },
+                        { text: "Sim, Excluir", style: "destructive", onPress: executeDelete }
+                      ]);
+                  } }
+                ]);
               }
             }}
           >
-            <MoreVertical size={24} color="#FFFFFF" />
+            <MoreHorizontal size={24} color="#FFFFFF" />
           </Pressable>
         </View>
 
