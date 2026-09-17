@@ -1123,9 +1123,12 @@ async def seed_database():
 async def list_students(
     search: Optional[str] = None,
     status: Optional[str] = None,
-    goal: Optional[str] = None
+    goal: Optional[str] = None,
+    trainer: dict = Depends(get_current_trainer)
 ):
     query: Dict[str, Any] = {"deleted_at": None}
+    if not trainer.get("is_admin"):
+        query["trainer_id"] = str(trainer["_id"])
     if search:
         query["$or"] = [
             {"name": {"$regex": search, "$options": "i"}},
@@ -1149,17 +1152,24 @@ async def list_students(
     return result
 
 @api_router.get("/students/{student_id}")
-async def get_student(student_id: str):
-    doc = await db.students.find_one({"_id": student_id, "deleted_at": None})
+async def get_student(student_id: str, trainer: dict = Depends(get_current_trainer)):
+    query = {"_id": student_id, "deleted_at": None}
+    if not trainer.get("is_admin"):
+        query["trainer_id"] = str(trainer["_id"])
+    doc = await db.students.find_one(query)
     if not doc:
-        raise HTTPException(status_code=404, detail="Aluno não encontrado")
+        raise HTTPException(status_code=404, detail="Aluno não encontrado ou não autorizado")
     doc["id"] = str(doc.pop("_id"))
     return doc
 
 @api_router.post("/students")
-async def create_student(data: Dict[str, Any]):
+async def create_student(data: Dict[str, Any], trainer: dict = Depends(get_current_trainer)):
     new_id = f"student_{uuid.uuid4().hex[:8]}"
     data["_id"] = new_id
+    if not trainer.get("is_admin"):
+        data["trainer_id"] = str(trainer["_id"])
+    elif "trainer_id" not in data:
+        data["trainer_id"] = str(trainer["_id"])
     data["created_at"] = datetime.now(timezone.utc).isoformat()
     data["updated_at"] = datetime.now(timezone.utc).isoformat()
     if "password" in data:
@@ -1197,7 +1207,15 @@ async def create_student(data: Dict[str, Any]):
     return doc
 
 @api_router.put("/students/{student_id}")
-async def update_student(student_id: str, data: Dict[str, Any]):
+async def update_student(student_id: str, data: Dict[str, Any], trainer: dict = Depends(get_current_trainer)):
+    query = {"_id": student_id}
+    if not trainer.get("is_admin"):
+        query["trainer_id"] = str(trainer["_id"])
+    
+    old_doc = await db.students.find_one(query)
+    if not old_doc:
+        raise HTTPException(status_code=404, detail="Aluno não encontrado ou não autorizado")
+
     data.pop("_id", None)
     data.pop("id", None)
     if "password" in data:
@@ -1205,7 +1223,6 @@ async def update_student(student_id: str, data: Dict[str, Any]):
     data["updated_at"] = datetime.now(timezone.utc).isoformat()
 
     # If weight changed, log to history
-    old_doc = await db.students.find_one({"_id": student_id})
     if old_doc and "weight_kg" in data and float(data["weight_kg"]) != float(old_doc.get("weight_kg", 0)):
         old_w = float(old_doc.get("weight_kg", 0))
         new_w = float(data["weight_kg"])
@@ -1233,12 +1250,17 @@ async def update_student(student_id: str, data: Dict[str, Any]):
     return doc
 
 @api_router.delete("/students/{student_id}")
-async def delete_student(student_id: str):
-    # Soft delete
-    await db.students.update_one(
-        {"_id": student_id},
+async def delete_student(student_id: str, trainer: dict = Depends(get_current_trainer)):
+    query = {"_id": student_id}
+    if not trainer.get("is_admin"):
+        query["trainer_id"] = str(trainer["_id"])
+    
+    result = await db.students.update_one(
+        query,
         {"$set": {"deleted_at": datetime.now(timezone.utc).isoformat(), "status": "inativo"}}
     )
+    if result.matched_count == 0:
+        raise HTTPException(404, "Aluno não encontrado ou não autorizado")
     return {"success": True, "message": "Aluno inativado com sucesso"}
 
 # ==========================================
@@ -1891,6 +1913,48 @@ async def ai_coach_assistant(req: AIRequest):
         return {"reply": fallback_reply, "error": str(e)}
 
 # ==========================================
+# ROUTES: ADMIN (Manage Trainers)
+# ==========================================
+
+@api_router.get("/admin/trainers")
+async def list_trainers(trainer: dict = Depends(get_current_trainer)):
+    if not trainer.get("is_admin"):
+        raise HTTPException(403, "Acesso negado")
+    cursor = db.trainers.find({"is_admin": {"$ne": True}}).sort("name", 1)
+    trainers = await cursor.to_list(100)
+    return [_trainer_public(t) for t in trainers]
+
+@api_router.post("/admin/trainers")
+async def create_trainer(body: RegisterBody, trainer: dict = Depends(get_current_trainer)):
+    if not trainer.get("is_admin"):
+        raise HTTPException(403, "Acesso negado")
+    email = body.email.lower()
+    existing = await db.trainers.find_one({"email": email})
+    if existing:
+        raise HTTPException(409, "Este e-mail já está em uso.")
+    
+    doc = {
+        "_id": f"trainer_{uuid.uuid4().hex[:8]}",
+        "name": body.name.strip() or "Personal",
+        "email": email,
+        "password_hash": hash_password(body.password),
+        "is_admin": False,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.trainers.insert_one(doc)
+    return _trainer_public(doc)
+
+@api_router.delete("/admin/trainers/{trainer_id}")
+async def delete_trainer(trainer_id: str, trainer: dict = Depends(get_current_trainer)):
+    if not trainer.get("is_admin"):
+        raise HTTPException(403, "Acesso negado")
+    
+    result = await db.trainers.delete_one({"_id": trainer_id, "is_admin": {"$ne": True}})
+    if result.deleted_count == 0:
+        raise HTTPException(404, "Personal não encontrado ou protegido")
+    return {"success": True}
+
+# ==========================================
 # ROUTES: AUTH (public)
 # ==========================================
 
@@ -1926,35 +1990,44 @@ async def register_trainer(body: RegisterBody):
     return {"access_token": issue_token(doc["_id"]), "token_type": "bearer", "trainer": _trainer_public(doc)}
 
 @public_router.post("/auth/login")
-async def login_trainer(body: LoginBody):
+async def login_unified(body: LoginBody):
     email = body.email.lower()
+    
+    # Check if trainer/admin
     trainer = await db.trainers.find_one({"email": email})
-    if not trainer or not verify_password(body.password, trainer.get("password_hash", "")):
-        raise HTTPException(401, "E-mail ou senha incorretos")
-    return {"access_token": issue_token(trainer["_id"]), "token_type": "bearer", "trainer": _trainer_public(trainer)}
-
-@public_router.post("/auth/student/login")
-async def login_student(body: LoginBody):
-    email = body.email.lower()
+    if trainer and verify_password(body.password, trainer.get("password_hash", "")):
+        role = "admin" if trainer.get("is_admin") else "trainer"
+        return {
+            "access_token": issue_token(trainer["_id"]),
+            "token_type": "bearer",
+            "role": role,
+            "user": _trainer_public(trainer)
+        }
+        
+    # Check if student
     student = await db.students.find_one({"email": email, "deleted_at": None})
-    if not student or not verify_password(body.password, student.get("password_hash", "")):
-        raise HTTPException(401, "E-mail ou senha incorretos")
-    
-    # Remove sensitive info before returning
-    student_clean = {k: v for k, v in student.items() if k not in ["password_hash"]}
-    student_clean["id"] = student_clean.pop("_id")
-    
-    return {"access_token": issue_token(student["_id"]), "token_type": "bearer", "student": student_clean}
+    if student and verify_password(body.password, student.get("password_hash", "")):
+        student_clean = {k: v for k, v in student.items() if k not in ["password_hash"]}
+        student_clean["id"] = student_clean.pop("_id")
+        return {
+            "access_token": issue_token(student["_id"]),
+            "token_type": "bearer",
+            "role": "student",
+            "user": student_clean
+        }
+
+    raise HTTPException(401, "E-mail ou senha incorretos")
 
 @api_router.get("/auth/me")
 async def get_me(trainer: dict = Depends(get_current_trainer)):
-    return _trainer_public(trainer)
+    role = "admin" if trainer.get("is_admin") else "trainer"
+    return {"user": _trainer_public(trainer), "role": role}
 
 @student_router.get("/student/me")
 async def get_student_me(student: dict = Depends(get_current_student)):
     student_clean = {k: v for k, v in student.items() if k not in ["password_hash"]}
     student_clean["id"] = student_clean.pop("_id")
-    return student_clean
+    return {"user": student_clean, "role": "student"}
 
 # ==========================================
 # ROUTES: FILE UPLOAD / DOWNLOAD (Object Storage)
@@ -2179,6 +2252,7 @@ async def startup_tasks():
                 "name": "Personal ApexTrainer",
                 "email": "personal@apextrainer.com",
                 "password_hash": hash_password("treino123"),
+                "is_admin": True,
                 "created_at": datetime.now(timezone.utc).isoformat(),
             })
     except Exception as e:

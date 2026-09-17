@@ -11,12 +11,13 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { User, Check, X, Camera } from "lucide-react-native";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import { User, Check, X, Camera, ChevronDown } from "lucide-react-native";
 
 import { useTheme, makeStyles } from "@/src/theme";
 import { api } from "@/src/api/client";
 import { Header } from "@/src/components/Header";
+import { useAuth } from "@/src/auth/AuthContext";
 import { StudentGoal, TrainingLevel, PlanType } from "@/src/types";
 
 const GOALS: StudentGoal[] = [
@@ -37,8 +38,16 @@ export default function NewStudentScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { role, user } = useAuth();
+
+  const { data: trainers } = useQuery({
+    queryKey: ["admin-trainers"],
+    queryFn: api.getTrainers,
+    enabled: role === "admin",
+  });
 
   const [name, setName] = useState("");
+  const [trainerId, setTrainerId] = useState(role === "admin" ? "" : (user?.id || ""));
   const [photoUrl, setPhotoUrl] = useState("https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400");
   const [birthDate, setBirthDate] = useState("1996-08-15");
   const [gender, setGender] = useState<"Masculino" | "Feminino">("Masculino");
@@ -60,7 +69,7 @@ export default function NewStudentScreen() {
     }
     setLoading(true);
     try {
-      const newStudent = await api.createStudent({
+      const payload: any = {
         name: name.trim(),
         photo_url: photoUrl,
         birth_date: birthDate,
@@ -78,7 +87,11 @@ export default function NewStudentScreen() {
         monthly_fee: parseFloat(monthlyFee) || 250,
         status: "ativo",
         notes: notes,
-      });
+      };
+      if (role === "admin" && trainerId) {
+        payload.trainer_id = trainerId;
+      }
+      const newStudent = await api.createStudent(payload);
 
       queryClient.invalidateQueries({ queryKey: ["students-list"] });
       queryClient.invalidateQueries({ queryKey: ["students-full-list"] });
@@ -118,6 +131,36 @@ export default function NewStudentScreen() {
             style={[styles.input, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border, color: colors.onSurface }]}
           />
         </View>
+
+        {role === "admin" && (
+          <View style={styles.formGroup}>
+            <Text style={[styles.label, { color: colors.onSurface }]}>Personal Responsável</Text>
+            {Platform.OS === "web" ? (
+              <select
+                value={trainerId}
+                onChange={(e) => setTrainerId(e.target.value)}
+                style={{ padding: 12, borderRadius: 8, backgroundColor: colors.surfaceSecondary, color: colors.onSurface, borderColor: colors.border, borderWidth: 1 }}
+              >
+                <option value="">Selecione o Personal</option>
+                {trainers?.map((t: any) => (
+                  <option key={t.id} value={t.id}>{t.name}</option>
+                ))}
+              </select>
+            ) : (
+              <Pressable onPress={() => {
+                const id = window.prompt("Digite o ID do personal (Somente web por enquanto):");
+                if (id) setTrainerId(id);
+              }}>
+                <TextInput
+                  value={trainerId}
+                  editable={false}
+                  placeholder="Selecione..."
+                  style={[styles.input, { backgroundColor: colors.surfaceSecondary, color: colors.onSurface }]}
+                />
+              </Pressable>
+            )}
+          </View>
+        )}
 
         {/* FOTO E SEXO */}
         <View style={styles.row}>

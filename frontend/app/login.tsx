@@ -22,7 +22,6 @@ export default function LoginScreen() {
   const { signIn, signUp } = useAuth();
 
   const [mode, setMode] = useState<"login" | "register">("login");
-  const [loginRole, setLoginRole] = useState<"trainer" | "student">("student");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -38,7 +37,7 @@ export default function LoginScreen() {
     setLoading(true);
     try {
       if (mode === "login") {
-        await signIn(email.trim().toLowerCase(), password, loginRole);
+        await signIn(email.trim().toLowerCase(), password);
       } else {
         await signUp(name.trim(), email.trim().toLowerCase(), password);
       }
@@ -88,29 +87,6 @@ export default function LoginScreen() {
               ? "Escolha seu perfil e acesse sua conta."
               : "Crie sua conta de treinador grátis."}
           </Text>
-
-          {mode === "login" && (
-            <View style={styles.roleToggle}>
-              <Pressable
-                onPress={() => setLoginRole("student")}
-                style={[
-                  styles.roleBtn,
-                  loginRole === "student" ? { backgroundColor: colors.brandPrimary } : { backgroundColor: colors.surfaceTertiary }
-                ]}
-              >
-                <Text style={[styles.roleText, loginRole === "student" ? { color: "#FFF" } : { color: colors.muted }]}>Sou Aluno</Text>
-              </Pressable>
-              <Pressable
-                onPress={() => setLoginRole("trainer")}
-                style={[
-                  styles.roleBtn,
-                  loginRole === "trainer" ? { backgroundColor: colors.brandPrimary } : { backgroundColor: colors.surfaceTertiary }
-                ]}
-              >
-                <Text style={[styles.roleText, loginRole === "trainer" ? { color: "#FFF" } : { color: colors.muted }]}>Sou Personal</Text>
-              </Pressable>
-            </View>
-          )}
 
           {mode === "register" && (
             <View style={styles.field}>

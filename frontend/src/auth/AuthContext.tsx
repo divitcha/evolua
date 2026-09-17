@@ -10,10 +10,10 @@ interface UserProfile {
 
 interface AuthState {
   user: UserProfile | null;
-  role: "trainer" | "student" | null;
+  role: "admin" | "trainer" | "student" | null;
   token: string | null;
   loading: boolean;
-  signIn: (email: string, password: string, role: "trainer" | "student") => Promise<void>;
+  signIn: (email: string, password: string) => Promise<void>;
   signUp: (name: string, email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   // For backwards compatibility in other components temporarily:
@@ -27,7 +27,7 @@ const AuthContext = createContext<AuthState | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
-  const [role, setRole] = useState<"trainer" | "student" | null>(null);
+  const [role, setRole] = useState<"admin" | "trainer" | "student" | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -37,14 +37,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const savedUser = await storage.getItem<any>(USER_KEY, null);
       const savedRole = await storage.getItem<any>(ROLE_KEY, null);
       
-      // Fallback for old trainer sessions
       const oldTrainer = await storage.getItem<any>("apex_trainer_profile", null);
       
       if (savedToken) {
         setToken(savedToken);
         if (savedUser && savedRole) {
           setUser(savedUser as UserProfile);
-          setRole(savedRole as "trainer" | "student");
+          setRole(savedRole as "admin" | "trainer" | "student");
         } else if (oldTrainer) {
           setUser(oldTrainer as UserProfile);
           setRole("trainer");
@@ -54,7 +53,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })();
   }, []);
 
-  const persist = useCallback(async (t: string, prof: UserProfile, userRole: "trainer" | "student") => {
+  const persist = useCallback(async (t: string, prof: UserProfile, userRole: "admin" | "trainer" | "student") => {
     await storage.secureSet(AUTH_TOKEN_KEY, t);
     await storage.setItem(USER_KEY, prof as any);
     await storage.setItem(ROLE_KEY, userRole as any);
@@ -63,14 +62,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setRole(userRole);
   }, []);
 
-  const signIn = useCallback(async (email: string, password: string, selectedRole: "trainer" | "student") => {
-    if (selectedRole === "trainer") {
-      const res = await api.login(email, password);
-      await persist(res.access_token, res.trainer, "trainer");
-    } else {
-      const res = await api.loginStudent(email, password);
-      await persist(res.access_token, res.student, "student");
-    }
+  const signIn = useCallback(async (email: string, password: string) => {
+    const res = await api.loginUnified(email, password);
+    await persist(res.access_token, res.user, res.role as "admin" | "trainer" | "student");
   }, [persist]);
 
   const signUp = useCallback(async (name: string, email: string, password: string) => {

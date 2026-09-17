@@ -62,13 +62,8 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ name, email, password }),
     }),
-  login: (email: string, password: string) =>
-    apiRequest<AuthResult>("/auth/login", {
-      method: "POST",
-      body: JSON.stringify({ email, password }),
-    }),
-  loginStudent: (email: string, password: string) =>
-    apiRequest<{ access_token: string; student: { id: string; name: string; email: string } }>("/auth/student/login", {
+  loginUnified: (email: string, password: string) =>
+    apiRequest<any>("/auth/login", {
       method: "POST",
       body: JSON.stringify({ email, password }),
     }),
@@ -93,6 +88,16 @@ export const api = {
     if (!res.ok) throw new Error(`Upload falhou: ${res.status}`);
     return res.json();
   },
+
+  // Admin
+  getTrainers: () => apiRequest<any[]>("/admin/trainers"),
+  createTrainer: (name: string, email: string, password: string) =>
+    apiRequest<any>("/admin/trainers", {
+      method: "POST",
+      body: JSON.stringify({ name, email, password }),
+    }),
+  deleteTrainer: (id: string) =>
+    apiRequest<{ success: boolean }>(`/admin/trainers/${id}`, { method: "DELETE" }),
 
   // Push notifications
   registerPush: (user_id: string, platform: string, device_token: string) =>

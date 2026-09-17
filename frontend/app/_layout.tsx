@@ -84,16 +84,20 @@ function RootNavigator() {
       router.replace("/login");
     } else if (token) {
       if (onLogin) {
-        if (role === "student") router.replace("/(student-tabs)");
+        if (role === "admin") router.replace("/(admin-tabs)");
+        else if (role === "student") router.replace("/(student-tabs)");
         else router.replace("/");
       } else {
         const inStudentTab = segments[0] === "(student-tabs)";
+        const inAdminTab = segments[0] === "(admin-tabs)";
         const inPersonalTab = segments[0] === "(tabs)" || segments[0] === "students";
         
-        if (role === "student" && inPersonalTab) {
+        if (role === "student" && (inPersonalTab || inAdminTab)) {
           router.replace("/(student-tabs)");
-        } else if (role === "trainer" && inStudentTab) {
+        } else if (role === "trainer" && (inStudentTab || inAdminTab)) {
           router.replace("/");
+        } else if (role === "admin" && (inStudentTab || inPersonalTab)) {
+          router.replace("/(admin-tabs)");
         }
       }
     }
@@ -130,6 +134,7 @@ function RootNavigator() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="login" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="(admin-tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="(student-tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="students/[id]" options={{ headerShown: false }} />
       <Stack.Screen name="students/new" options={{ headerShown: false, presentation: "modal" }} />
