@@ -2243,14 +2243,14 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def startup_tasks():
-    # Ensure a default trainer exists so login works out of the box
+    # Ensure a default admin exists so login works out of the box
     try:
-        existing = await db.trainers.find_one({"email": "personal@apextrainer.com"})
+        existing = await db.trainers.find_one({"email": "admin@treinai.com"})
         if not existing:
             await db.trainers.insert_one({
                 "_id": "trainer_default",
-                "name": "Personal ApexTrainer",
-                "email": "personal@apextrainer.com",
+                "name": "Administrador Treinaí",
+                "email": "admin@treinai.com",
                 "password_hash": hash_password("treino123"),
                 "is_admin": True,
                 "created_at": datetime.now(timezone.utc).isoformat(),
