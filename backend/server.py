@@ -1913,6 +1913,26 @@ async def ai_coach_assistant(req: AIRequest):
         return {"reply": fallback_reply, "error": str(e)}
 
 # ==========================================
+# HELPERS & MODELS
+# ==========================================
+
+class RegisterBody(BaseModel):
+    name: str
+    email: EmailStr
+    password: str = Field(min_length=6, max_length=128)
+
+class LoginBody(BaseModel):
+    email: EmailStr
+    password: str
+
+def _trainer_public(doc: dict) -> dict:
+    return {
+        "id": str(doc["_id"]),
+        "name": doc.get("name", "Personal"),
+        "email": doc.get("email"),
+    }
+
+# ==========================================
 # ROUTES: ADMIN (Manage Trainers)
 # ==========================================
 
@@ -1957,22 +1977,6 @@ async def delete_trainer(trainer_id: str, trainer: dict = Depends(get_current_tr
 # ==========================================
 # ROUTES: AUTH (public)
 # ==========================================
-
-class RegisterBody(BaseModel):
-    name: str
-    email: EmailStr
-    password: str = Field(min_length=6, max_length=128)
-
-class LoginBody(BaseModel):
-    email: EmailStr
-    password: str
-
-def _trainer_public(doc: dict) -> dict:
-    return {
-        "id": str(doc["_id"]),
-        "name": doc.get("name", "Personal"),
-        "email": doc.get("email"),
-    }
 
 @public_router.post("/auth/register")
 async def register_trainer(body: RegisterBody):
