@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
-import { Dumbbell, Mail, Lock, User, ArrowRight } from "lucide-react-native";
+import { Dumbbell, Mail, Lock, User, ArrowRight, Eye, EyeOff } from "lucide-react-native";
 import { LinearGradient } from "expo-linear-gradient";
 
 import { useTheme, makeStyles } from "@/src/theme";
@@ -25,6 +25,7 @@ export default function LoginScreen() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -95,8 +96,9 @@ export default function LoginScreen() {
                 testID="input-name"
                 value={name}
                 onChangeText={setName}
-                placeholder="Seu nome completo"
+                placeholder="Seu Nome"
                 placeholderTextColor={colors.muted}
+                returnKeyType="next"
                 style={[styles.input, { color: colors.onSurface }]}
               />
             </View>
@@ -112,6 +114,7 @@ export default function LoginScreen() {
               placeholderTextColor={colors.muted}
               autoCapitalize="none"
               keyboardType="email-address"
+              returnKeyType="next"
               style={[styles.input, { color: colors.onSurface }]}
             />
           </View>
@@ -124,9 +127,18 @@ export default function LoginScreen() {
               onChangeText={setPassword}
               placeholder="Senha"
               placeholderTextColor={colors.muted}
-              secureTextEntry
+              secureTextEntry={!showPassword}
+              returnKeyType="done"
+              onSubmitEditing={handleSubmit}
               style={[styles.input, { color: colors.onSurface }]}
             />
+            <Pressable onPress={() => setShowPassword(!showPassword)} style={{ padding: 4 }}>
+              {showPassword ? (
+                <EyeOff size={18} color={colors.muted} />
+              ) : (
+                <Eye size={18} color={colors.muted} />
+              )}
+            </Pressable>
           </View>
 
           {!!error && (
