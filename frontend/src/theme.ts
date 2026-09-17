@@ -3,26 +3,26 @@ import { Appearance, StyleSheet, useColorScheme } from "react-native";
 
 export type ColorScheme = "light" | "dark";
 
-// Dark-First Utility Theme for ApexTrainer OS (Personality #7)
+// Dark-First Utility Theme for Treinaí
 const dark = {
-  surface: "#121417",
+  surface: "#1A1D23", // Cinza Chumbo escuro
   onSurface: "#F4F5F7",
-  surfaceSecondary: "#1A1D23",
+  surfaceSecondary: "#232730",
   onSurfaceSecondary: "#9CA3AF",
-  surfaceTertiary: "#232730",
+  surfaceTertiary: "#2E3440",
   onSurfaceTertiary: "#D1D5DB",
   surfaceInverse: "#FFFFFF",
-  onSurfaceInverse: "#121417",
+  onSurfaceInverse: "#1A1D23",
   muted: "#6B7280",
 
-  brand: "#FF5722",
+  brand: "#10B981", // Verde Esmeralda
   onBrand: "#FFFFFF",
-  brandPrimary: "#FF5722",
+  brandPrimary: "#10B981",
   onBrandPrimary: "#FFFFFF",
-  brandSecondary: "#FF7043",
+  brandSecondary: "#059669",
   onBrandSecondary: "#FFFFFF",
-  brandTertiary: "rgba(255, 87, 34, 0.15)",
-  onBrandTertiary: "#FF5722",
+  brandTertiary: "rgba(16, 185, 129, 0.15)",
+  onBrandTertiary: "#10B981",
 
   success: "#10B981",
   onSuccess: "#FFFFFF",
@@ -33,10 +33,10 @@ const dark = {
   info: "#3B82F6",
   onInfo: "#FFFFFF",
 
-  border: "#2A2F3A",
-  borderStrong: "#FF5722",
-  divider: "#1F242D",
-  cardHover: "#262B35",
+  border: "#374151",
+  borderStrong: "#10B981",
+  divider: "#2A2F3A",
+  cardHover: "#2A2F3A",
   accentCyan: "#06B6D4",
   accentAmber: "#F59E0B",
   accentPurple: "#8B5CF6",
@@ -44,23 +44,23 @@ const dark = {
 
 const light = {
   surface: "#F8FAFC",
-  onSurface: "#0F172A",
+  onSurface: "#1A1D23", // Cinza Chumbo escuro para textos
   surfaceSecondary: "#FFFFFF",
   onSurfaceSecondary: "#475569",
   surfaceTertiary: "#F1F5F9",
   onSurfaceTertiary: "#334155",
-  surfaceInverse: "#0F172A",
+  surfaceInverse: "#1A1D23",
   onSurfaceInverse: "#FFFFFF",
   muted: "#64748B",
 
-  brand: "#FF5722",
+  brand: "#10B981", // Verde Esmeralda
   onBrand: "#FFFFFF",
-  brandPrimary: "#FF5722",
+  brandPrimary: "#10B981",
   onBrandPrimary: "#FFFFFF",
-  brandSecondary: "#FF7043",
+  brandSecondary: "#059669",
   onBrandSecondary: "#FFFFFF",
-  brandTertiary: "rgba(255, 87, 34, 0.12)",
-  onBrandTertiary: "#FF5722",
+  brandTertiary: "rgba(16, 185, 129, 0.12)",
+  onBrandTertiary: "#10B981",
 
   success: "#10B981",
   onSuccess: "#FFFFFF",
@@ -72,7 +72,7 @@ const light = {
   onInfo: "#FFFFFF",
 
   border: "#E2E8F0",
-  borderStrong: "#FF5722",
+  borderStrong: "#10B981",
   divider: "#E2E8F0",
   cardHover: "#F1F5F9",
   accentCyan: "#0891B2",

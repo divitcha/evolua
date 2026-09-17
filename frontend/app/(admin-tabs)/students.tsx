@@ -109,7 +109,7 @@ export default function DashboardScreen() {
     <View testID="dashboard-screen" style={[styles.container, { backgroundColor: colors.surface }]}>
       <Header
         title="Treinaí"
-        subtitle="Painel do Personal Trainer Autônomo"
+        subtitle="Painel do Administrador"
         testID="dashboard-header"
         rightElement={
           <View style={styles.headerActions}>

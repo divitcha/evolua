@@ -1877,7 +1877,7 @@ async def ai_coach_assistant(req: AIRequest):
         raise HTTPException(status_code=500, detail="OPENAI_API_KEY não configurada")
 
     system_prompt = (
-        "Você é o ApexTrainer AI, um assistente de elite especializado em Educação Física, Fisiologia do Exercício, "
+        "Você é o Treinaí AI, um assistente de elite especializado em Educação Física, Fisiologia do Exercício, "
         "Biomecânica, Antropometria e Gestão de Personal Trainers. "
         "Responda sempre em Português do Brasil com clareza técnica, tom encorajador, formatação limpa e direta. "
         "Ao sugerir treinos, detalhe divisões (A/B/C), exercícios, séries, repetições, carga sugerida, descanso e cadência. "
@@ -1905,7 +1905,7 @@ async def ai_coach_assistant(req: AIRequest):
     except Exception as e:
         logger.error(f"Erro ao chamar AI Assistant: {str(e)}")
         fallback_reply = (
-            f"💡 **Recomendação ApexTrainer:**\n\n"
+            f"💡 **Recomendação Treinaí:**\n\n"
             f"Com base na solicitação: *'{req.prompt}'*,\n"
             f"Recomenda-se manter foco no princípio da sobrecarga progressiva, respeitar intervalo de 48h a 72h para o mesmo grupo muscular "
             f"e monitorar o percentual de gordura via protocolo Pollock a cada 45 dias para ajustes metabólicos."
@@ -2104,7 +2104,7 @@ async def notify_alerts(trainer: dict = Depends(get_current_trainer)):
     try:
         await send_push(
             recipients=[str(trainer["_id"])],
-            data={"title": "Resumo de Alertas ApexTrainer", "message": message, "action_url": "/"},
+            data={"title": "Resumo de Alertas Treinaí", "message": message, "action_url": "/"},
             idempotency_key=f"alerts_{datetime.now().strftime('%Y%m%d%H')}",
         )
     except Exception as e:

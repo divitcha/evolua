@@ -185,7 +185,7 @@ export default function LoginScreen() {
         {mode === "login" && (
           <View style={[styles.demoHint, { borderColor: colors.border }]}>
             <Text style={[styles.demoText, { color: colors.muted }]}>
-              Demo: personal@apextrainer.com · treino123
+              Demo: admin@treinai.com · treino123
             </Text>
           </View>
         )}

@@ -160,7 +160,7 @@ Forneça um parecer técnico sucinto com recomendações biomecânicas e de segu
       >
         {/* AI ANALYSIS CALLOUT */}
         {aiAnalysis ? (
-          <View style={[styles.aiCard, { backgroundColor: "rgba(255, 87, 34, 0.1)", borderColor: colors.brandPrimary }]}>
+          <View style={[styles.aiCard, { backgroundColor: colors.brandTertiary, borderColor: colors.brandPrimary }]}>
             <View style={styles.aiCardHeader}>
               <Sparkles size={16} color={colors.brandPrimary} />
               <Text style={[styles.aiCardTitle, { color: colors.brandPrimary }]}>

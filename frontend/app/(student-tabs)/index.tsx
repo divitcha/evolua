@@ -120,7 +120,7 @@ export default function StudentDashboardScreen() {
               style={{
                 width: `${Math.min(100, ((hydration?.consumed_ml || 0) / (hydration?.goal_ml || 1)) * 100)}%`,
                 height: "100%",
-                backgroundColor: colors.info,
+                backgroundColor: (hydration?.consumed_ml || 0) >= (hydration?.goal_ml || 1) ? colors.success : colors.info,
               }}
             />
           </View>
