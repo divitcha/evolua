@@ -128,7 +128,19 @@ export default function WorkoutsScreen() {
               key={workout.id}
               testID={`workout-card-${workout.id}`}
               onPress={() => router.push(`/students/${workout.student_id}`)}
-              style={[styles.workoutCard, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}
+              style={[
+                styles.workoutCard, 
+                { 
+                  backgroundColor: colors.surface, 
+                  borderColor: colors.border,
+                  borderRadius: 24,
+                  shadowColor: "#000",
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.05,
+                  shadowRadius: 8,
+                  elevation: 2,
+                }
+              ]}
             >
               <View style={styles.workoutHeader}>
                 <View style={styles.workoutHeaderLeft}>

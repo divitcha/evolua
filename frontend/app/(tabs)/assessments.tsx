@@ -157,7 +157,19 @@ export default function AssessmentsScreen() {
               key={assessment.id}
               testID={`assessment-card-${assessment.id}`}
               onPress={() => router.push(`/students/${assessment.student_id}`)}
-              style={[styles.evalCard, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}
+              style={[
+                styles.evalCard, 
+                { 
+                  backgroundColor: colors.surface, 
+                  borderColor: colors.border,
+                  borderRadius: 24,
+                  shadowColor: "#000",
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.05,
+                  shadowRadius: 8,
+                  elevation: 2,
+                }
+              ]}
             >
               <View style={styles.evalCardHeader}>
                 <View>
