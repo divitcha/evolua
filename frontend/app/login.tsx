@@ -81,22 +81,7 @@ export default function LoginScreen() {
         {/* CARD */}
         <View style={[styles.card, { backgroundColor: colors.surfaceSecondary, borderColor: colors.border }]}>
 
-          {mode === "register" && (
-            <View style={{ marginBottom: 12 }}>
-              <Text style={{ fontSize: 12, fontWeight: "bold", color: colors.onSurface, marginBottom: 4 }}>Nome completo</Text>
-              <View style={styles.field}>
-                <TextInput
-                  testID="input-name"
-                  value={name}
-                  onChangeText={setName}
-                  placeholder="Seu Nome"
-                  placeholderTextColor={colors.muted}
-                  returnKeyType="next"
-                  style={[styles.input, { color: colors.onSurface }]}
-                />
-              </View>
-            </View>
-          )}
+
 
           <View style={{ marginBottom: 12 }}>
             <Text style={{ fontSize: 12, fontWeight: "bold", color: colors.onSurface, marginBottom: 4 }}>E-mail</Text>
@@ -161,36 +146,14 @@ export default function LoginScreen() {
                 <ActivityIndicator size="small" color="#FFFFFF" />
               ) : (
                 <Text style={styles.submitText}>
-                  {mode === "login" ? "Entrar no Sistema" : "Criar conta"}
+                  Entrar no Sistema
                 </Text>
               )}
             </LinearGradient>
           </Pressable>
 
-          <Pressable
-            testID="btn-toggle-mode"
-            onPress={() => {
-              setMode(mode === "login" ? "register" : "login");
-              setError("");
-            }}
-            style={styles.toggleBtn}
-          >
-            <Text style={[styles.toggleText, { color: colors.onSurfaceSecondary }]}>
-              {mode === "login" ? "Não tem conta? " : "Já tem conta? "}
-              <Text style={{ color: colors.brandPrimary, fontWeight: "700" }}>
-                {mode === "login" ? "Cadastre-se" : "Faça login"}
-              </Text>
-            </Text>
           </Pressable>
         </View>
-
-        {mode === "login" && (
-          <View style={[styles.demoHint, { borderColor: colors.border }]}>
-            <Text style={[styles.demoText, { color: colors.muted }]}>
-              Demo: admin@treinai.com · treino123
-            </Text>
-          </View>
-        )}
       </KeyboardAwareScrollView>
     </View>
   );

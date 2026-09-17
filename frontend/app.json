@@ -22,9 +22,10 @@
       },
       "package": "com.emergent.bodyprogress.iv70xj",
       "permissions": [
-        "CAMERA",
-        "READ_MEDIA_IMAGES",
-        "POST_NOTIFICATIONS"
+        "android.permission.CAMERA",
+        "android.permission.READ_MEDIA_IMAGES",
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.RECORD_AUDIO"
       ]
     },
     "web": {
@@ -59,6 +60,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "5c23b8a4-2517-41d1-a463-dd7be2e9973c"
+      }
+    },
+    "owner": "divitcha"
   }
 }
