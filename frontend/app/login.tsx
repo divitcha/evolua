@@ -151,8 +151,6 @@ export default function LoginScreen() {
               )}
             </LinearGradient>
           </Pressable>
-
-          </Pressable>
         </View>
       </KeyboardAwareScrollView>
     </View>
