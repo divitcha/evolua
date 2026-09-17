@@ -115,18 +115,18 @@ export default function DashboardScreen() {
         <View style={{ paddingHorizontal: 24 }}>
           {/* Card Principal - Alunos Ativos */}
           <LinearGradient
-            colors={["#059669", "#10B981"]}
+            colors={["#2563EB", "#7C3AED"]}
             start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
             style={{ borderRadius: 24, padding: 24, marginBottom: 24, flexDirection: "row", justifyContent: "space-between", alignItems: "center", overflow: "hidden" }}
           >
             <View style={{ zIndex: 10 }}>
               <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                <Users size={24} color="#A7F3D0" />
+                <Users size={24} color="#BFDBFE" />
                 <Text style={{ fontSize: 48, fontWeight: "800", color: "#FFFFFF", letterSpacing: -1 }}>
                   {dashboard?.active_students || 0}
                 </Text>
               </View>
-              <Text style={{ fontSize: 14, fontWeight: "500", color: "#D1FAE5" }}>alunos ativos</Text>
+              <Text style={{ fontSize: 14, fontWeight: "500", color: "#DBEAFE" }}>alunos ativos</Text>
             </View>
             <View style={{ width: 96, height: 64, opacity: 0.8, zIndex: 10 }}>
               <Svg viewBox="0 0 100 50" width="100%" height="100%">
@@ -170,7 +170,7 @@ export default function DashboardScreen() {
               <View style={{ width: 96, height: 96 }}>
                 <Svg viewBox="0 0 36 36" width="100%" height="100%" style={{ transform: [{ rotate: "-90deg" }] }}>
                   <Path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke={colors.surfaceTertiary} strokeWidth="4" />
-                  <Path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#059669" strokeWidth="4" strokeLinecap="round" strokeDasharray="78, 100" />
+                  <Path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#2563EB" strokeWidth="4" strokeLinecap="round" strokeDasharray="78, 100" />
                 </Svg>
                 <View style={{ position: "absolute", alignItems: "center", justifyContent: "center" }}>
                   <Text style={{ fontSize: 16, fontWeight: "bold", color: colors.onSurface }}>78%</Text>
@@ -179,7 +179,7 @@ export default function DashboardScreen() {
               <View style={{ flex: 1, gap: 8 }}>
                 <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
                   <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
-                    <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: "#059669" }} />
+                    <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: "#2563EB" }} />
                     <Text style={{ color: colors.muted, fontSize: 12, fontWeight: "500" }}>Presentes</Text>
                   </View>
                   <Text style={{ color: colors.onSurface, fontWeight: "bold", fontSize: 12 }}>78%</Text>
@@ -207,7 +207,7 @@ export default function DashboardScreen() {
             <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12, paddingHorizontal: 4 }}>
               <Text style={{ fontSize: 14, fontWeight: "bold", color: colors.onSurface }}>Alertas importantes</Text>
               <Pressable onPress={() => router.push("/(tabs)/students")}>
-                <Text style={{ fontSize: 12, fontWeight: "bold", color: "#059669" }}>Ver todos</Text>
+                <Text style={{ fontSize: 12, fontWeight: "bold", color: "#2563EB" }}>Ver todos</Text>
               </Pressable>
             </View>
             <Pressable onPress={() => router.push("/(tabs)/students")} style={{ backgroundColor: "#EF4444", borderRadius: 24, padding: 20, flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>

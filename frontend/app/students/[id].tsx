@@ -177,7 +177,7 @@ export default function StudentDetailScreen() {
   return (
     <View testID="student-detail-screen" style={[styles.container, { backgroundColor: colors.surface }]}>
       <LinearGradient
-        colors={["#065F46", "#059669"]}
+        colors={["#1E40AF", "#2563EB"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
         style={{

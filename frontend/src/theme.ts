@@ -15,14 +15,14 @@ const dark = {
   onSurfaceInverse: "#1A1D23",
   muted: "#6B7280",
 
-  brand: "#10B981", // Verde Esmeralda
+  brand: "#7C3AED", // Roxo (Modelo 2)
   onBrand: "#FFFFFF",
-  brandPrimary: "#10B981",
+  brandPrimary: "#7C3AED",
   onBrandPrimary: "#FFFFFF",
-  brandSecondary: "#059669",
+  brandSecondary: "#6D28D9",
   onBrandSecondary: "#FFFFFF",
-  brandTertiary: "rgba(16, 185, 129, 0.15)",
-  onBrandTertiary: "#10B981",
+  brandTertiary: "rgba(124, 58, 237, 0.15)",
+  onBrandTertiary: "#7C3AED",
 
   success: "#10B981",
   onSuccess: "#FFFFFF",
@@ -34,7 +34,7 @@ const dark = {
   onInfo: "#FFFFFF",
 
   border: "#374151",
-  borderStrong: "#10B981",
+  borderStrong: "#7C3AED",
   divider: "#2A2F3A",
   cardHover: "#2A2F3A",
   accentCyan: "#06B6D4",
@@ -53,14 +53,14 @@ const light = {
   onSurfaceInverse: "#FFFFFF",
   muted: "#64748B",
 
-  brand: "#10B981", // Verde Esmeralda
+  brand: "#7C3AED", // Roxo (Modelo 2)
   onBrand: "#FFFFFF",
-  brandPrimary: "#10B981",
+  brandPrimary: "#7C3AED",
   onBrandPrimary: "#FFFFFF",
-  brandSecondary: "#059669",
+  brandSecondary: "#6D28D9",
   onBrandSecondary: "#FFFFFF",
-  brandTertiary: "rgba(16, 185, 129, 0.12)",
-  onBrandTertiary: "#10B981",
+  brandTertiary: "rgba(124, 58, 237, 0.12)",
+  onBrandTertiary: "#7C3AED",
 
   success: "#10B981",
   onSuccess: "#FFFFFF",
@@ -72,7 +72,7 @@ const light = {
   onInfo: "#FFFFFF",
 
   border: "#E2E8F0",
-  borderStrong: "#10B981",
+  borderStrong: "#7C3AED",
   divider: "#E2E8F0",
   cardHover: "#F1F5F9",
   accentCyan: "#0891B2",
